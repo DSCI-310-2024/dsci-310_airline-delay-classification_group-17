@@ -23,6 +23,7 @@ Python version 3.11.5
   - `altair==5.2.0`
   - `jupyterlab==4.0.10`
   - `matplotlib==3.8.2`
+  - `nb_conda_kernels==2.3.1`
   - `numpy==1.26.4`
   - `pandas==2.2.0`
   - `scikit-learn==1.4.0`
