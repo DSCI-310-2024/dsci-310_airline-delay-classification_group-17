@@ -1,6 +1,8 @@
 # Code of Conduct
 
 ## Diversity and Inclusivity
+In fostering a culture of inclusivity, we value and respect diverse perspectives, backgrounds, and experiences.  
+We pledge to create a safe and welcoming environment where everyone can contribute and thrive, regardless of ethnicity, nationality, gender identity, sexual orientation, religion, age, appearance, or ability.
 
 ## Expected Behaviour
 Our expected behaviour includes:
