@@ -1,7 +1,9 @@
-# Project Title
+# Analysing Airline Delays and Cancellations in 2019
 Authors: Siddharth Balodi, Charles Benkard, Mikel Ibarra Gallardo, and Stephanie Ta
 
 ## Summary
+
+The airline industry plays a vital role in global transportation, yet it faces challenges such as flight delayts and cacellations which can inconvenience passengers and disrupt travel plans. In this project, we aim to conduct a comprehensive analysis of airline delays and cancellations using the 2019 dataset sourced from Kaggle. This dataset provides detailed information about flight delays, cancellations, reasons for delays, and other relevant factors across various airlines operating in the Untied States of America. Our analysis will focus on identifying patterns, trends, and factors contributing to delatys and cancellations, with the ultimate goal of gaining and providing insights to gelp airlines optimize their operations, improve punctuality, and enhance customer satisfaction. Through this project, we aim to contribute valuable insights to the aviation industry and proivde actionable reccomendations for mitigating delays and cancellations, ultimately imporving the travel experience for passengers.
 
 
 ## How to run the data analysis
