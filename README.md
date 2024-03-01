@@ -3,7 +3,11 @@ Authors: Siddharth Balodi, Charles Benkard, Mikel Ibarra Gallardo, and Stephanie
 
 ## Summary
 
-The airline industry plays a vital role in global transportation, yet it faces challenges such as flight delayts and cacellations which can inconvenience passengers and disrupt travel plans. In this project, we aim to conduct a comprehensive analysis of airline delays and cancellations using the 2019 dataset sourced from Kaggle. This dataset provides detailed information about flight delays, cancellations, reasons for delays, and other relevant factors across various airlines operating in the Untied States of America. Our analysis will focus on identifying patterns, trends, and factors contributing to delatys and cancellations, with the ultimate goal of gaining and providing insights to gelp airlines optimize their operations, improve punctuality, and enhance customer satisfaction. Through this project, we aim to contribute valuable insights to the aviation industry and proivde actionable reccomendations for mitigating delays and cancellations, ultimately imporving the travel experience for passengers.
+In this project, we delve into the 2019 airline delays and cancellations dataset to dissect the intricate factors contributing to flight disruptions. Our analysis aims to address pivotal questions, such as what are the primary drivers behind flight delays and cancellations? Are certain airlines or airports more vulnerable to these disruptions? How do external factors like adverse weather conditions or air traffic congestion exacerbate flight schedules? While previous studies have touched upon aspects of flight disruptions, our endeavor seeks to provide a deeper understanding through the lens of advanced analytical techniques, including descriptive statistics, data visualization, and machine learning algorithms.
+
+Through our exploration, we have unearthed compelling insights. We have found that airport congestion, inclement weather, and airline operational issues are key contributors to flight disruptions. Furthermore, our analysis has revealed disparities in performance among airlines and airports, shedding light on areas ripe for operational enhancements and service improvements. By leveraging these findings, stakeholders within the aviation industry can make informed decisions aimed at minimizing disruptions and enhancing overall operational efficiency.
+
+The significance of our research extends beyond the realm of academia. By unraveling the complexities of flight disruptions, we aim to empower decision-makers with actionable insights to navigate the challenges inherent in air travel. Moreover, our findings hold the potential to drive positive change within the aviation industry, ultimately leading to a more seamless and reliable travel experience for passengers worldwide.
 
 
 ## How to run the data analysis
@@ -40,3 +44,5 @@ Python version 3.11.5
   - `scikit-learn==1.4.0`
 
 ## Licences
+
+This project is licensed under the terms of the MIT License. If re-using/re-mixing please provide attribution and link to this webpage.
