@@ -1,4 +1,4 @@
-# Analysing Airline Delays and Cancellations in 2019
+# Analysis and Prediction of Airline Delays in 2019
 Authors: Siddharth Balodi, Charles Benkard, Mikel Ibarra Gallardo, and Stephanie Ta
 
 ## Summary
