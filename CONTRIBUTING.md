@@ -9,7 +9,7 @@ Any revisions to this repository are encouraged as necessary and all suggestions
 
 
 ### 1. {For code contributions} Set Up Virtual Environment:
-         - Please refer to the "README.md" file for instructions on how to do this.
+Please refer to the "README.md" file for instructions on how to do this.
 
 ### 2. Clone this repository
 Copy and paste to command line:
