@@ -8,26 +8,26 @@ Any revisions to this repository are encouraged as necessary and all suggestions
 ## How to Contribute:
 
 
-     ### 1. {For code contributions} Set Up Virtual Environment:
+### 1. {For code contributions} Set Up Virtual Environment:
          - Please refer to the "README.md" file for instructions on how to do this.
 
-     ### 2. Clone this repository:
+### 2. Clone this repository:
 	 - Copy and paste to command line:
 	 ```cmd
 	 git clone https://github.com/DSCI-310-2024/dsci-310_airline-delay-classification_group-17.git
 	 ```
 
-     ### 3. Create Separate Branch:
+### 3. Create Separate Branch:
 	 - Copy and paste to command line (and insert descriptive name):
 	 ```cmd
 	 git branch *branch name*
 	 git checkout *branch name*
 	 ```
 
-     ### 4. Double Check & Finalize Changes:
+### 4. Double Check & Finalize Changes:
          - Make sure to test changes if when making edits to code
 
-     ### 5. Create a Pull Request:
+### 5. Create a Pull Request:
 	 - Commit and push your changes to remote version of branch
 	 ```cmd
 	 git add *file name*
