@@ -1,0 +1,507 @@
+---
+title: Analysis and Prediction of Airline Delays in 2019
+jupyter: python3
+---
+
+Authors: Siddharth Balodi, Charles Benkard, Mikel Ibarra Gallardo, and Stephanie Ta
+
+
+## Summary
+
+In this project, we delve into a 2019 airline delays dataset to dissect the intricate factors contributing to flight disruptions. Our analysis aims to address pivotal questions, such as what are the primary drivers behind flight delays and cancellations? Are certain airlines or airports more vulnerable to these disruptions? How do external factors like adverse weather conditions or air traffic congestion exacerbate flight schedules? While previous studies have touched upon aspects of flight disruptions, we endeavor to provide a deeper understanding through the lens of  analytical techniques, including descriptive statistics, data visualization, and machine learning algorithms (specifically KNN classification).
+
+Through our exploration, we have unearthed compelling insights. We have found that airport congestion, inclement weather, and airline operational issues are key contributors to flight disruptions. Furthermore, our analysis has revealed disparities in performance among airlines and airports, shedding light on areas ripe for operational enhancements and service improvements. By leveraging these findings, stakeholders within the aviation industry can make informed decisions aimed at minimizing disruptions and enhancing overall operational efficiency.
+
+The significance of our research extends beyond the realm of academia. By unraveling the complexities of flight disruptions, we aim to empower decision-makers with actionable insights to navigate the challenges inherent in air travel. Moreover, our findings hold the potential to drive positive change within the aviation industry, ultimately leading to a more seamless and reliable travel experience for passengers worldwide.
+
+## Introduction
+
+The airline industry plays a vital role in global transportation, yet it faces challenges such as flight delays which can inconvenience passengers and disrupt travel plans. In this project, we aim to conduct a comprehensive analysis of airline delays using the 2019 dataset sourced from [Kaggle](https://www.kaggle.com/datasets/threnjen/2019-airline-delays-and-cancellations). This dataset provides detailed information about flight delays, reasons for delays, and other relevant factors across various airlines operating in the United States of America in 2019. Our analysis will focus on identifying patterns, trends, and factors contributing to delays and cancellations, with the ultimate goal of gaining and providing insights to help airlines optimize their operations, improve punctuality, and enhance customer satisfaction. Through this project, we aim to contribute valuable insights to the aviation industry and provide actionable recommendations for mitigating delays and cancellations, ultimately improving the travel experience for passengers.
+
+## Methods and Results
+
+To start, we will import the required libraries for our analysis, set the random state to generate reproducible results, and read in the data.
+
+```{python}
+# import required libraries for analysis
+import altair as alt
+import pandas as pd
+import numpy as np
+import sklearn
+from sklearn.model_selection import train_test_split
+from sklearn.dummy import DummyClassifier
+from sklearn.model_selection import train_test_split, cross_validate, GridSearchCV, RandomizedSearchCV
+from sklearn.preprocessing import (FunctionTransformer, Normalizer, OneHotEncoder, StandardScaler, normalize, scale)
+from sklearn.compose import make_column_transformer
+from sklearn.metrics import make_scorer
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.pipeline import Pipeline, make_pipeline
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import  confusion_matrix, ConfusionMatrixDisplay, classification_report
+
+# set random state to have reproducible results
+random_state=12
+
+# read in data
+raw_full_flight_data = pd.read_csv("../data/raw/full_data_flightdelay.csv")
+```
+
+Let's see how big the data set is.
+
+```{python}
+raw_full_flight_data.shape
+```
+
+There are 6,489,062 observations in the raw data set. Since such a large data set will take a lot of computing power and time, we will take sample of the data (20,000 observations) and use it in our analysis.
+
+```{python}
+# sample 20,000 observations from the raw data set
+raw_sample_flight_data = raw_full_flight_data.sample(n=20000, random_state=12)
+
+# save the sample data set
+raw_sample_flight_data.to_csv("../data/processed/raw_sample_flight_data.csv")
+
+# check shape of sample to confirm the sampling worked
+raw_sample_flight_data.shape
+```
+
+Let's clean our sample data by only keeping the features of interest and the target column in our data.  
+
+Features:
+- Month (`MONTH`)
+- Day of Week (`DAY_OF_WEEK`)
+- Number of concurrent flights leaving from the airport in the same departure block (`CONCURRENT_FLIGHTS`)
+- Carrier (`CARRIER_NAME`)
+- Number of flight attendants per passenger (`FLT_ATTENDANTS_PER_PASS`)
+- Number of ground service employees (service desk) per passenger (`GROUND_SERV_PER_PASS`)
+- Age of departing aircraft (`PLANE_AGE`)
+- Inches of snowfall on departure day (`SNOW`)
+- Max wind speed on departure day (`AWND`)
+
+Target:
+- If the departing flight is delayed over 15 minutes or not (`DEP_DEL15`, `0` = no and `1` = yes)
+
+Then, we'll split the data into training and testing sets.
+
+```{python}
+# list of features and target (DEP_DEL15) columns
+list_of_features_and_target = ['MONTH', 'DAY_OF_WEEK', 'DEP_DEL15', 'CONCURRENT_FLIGHTS', 'CARRIER_NAME',
+ 'FLT_ATTENDANTS_PER_PASS', 'GROUND_SERV_PER_PASS', 'PLANE_AGE', 'SNOW', 'AWND']
+
+# only keep the features of interest and the target column in the data set
+filtered_sample_flight_data = raw_sample_flight_data[list_of_features_and_target]
+
+# save the filtered sample data set
+filtered_sample_flight_data.to_csv("../data/processed/filtered_sample_flight_data.csv")
+
+# split filtered sample data into training and testing splits.
+flight_train, flight_test = train_test_split(filtered_sample_flight_data, test_size=0.2, random_state=12, stratify=filtered_sample_flight_data["DEP_DEL15"])
+```
+
+### Exploratory Data Analysis
+
+Let's preview the testing set and have a look at some information about the data.
+
+```{python}
+flight_train.head()
+```
+
+*Table 1. Preview of the training flight data.*
+
+```{python}
+flight_train.info()
+```
+
+We can see that there are no null values in any of the columns. To gain more insight into the training data, the following data visualizations were made to see the distribution of the different feature variables and target variable.
+
+```{python}
+# distributions of numeric columns
+
+# make histogram function for the numeric columns
+def make_histogram(data, column: str, x_title: str, w = 250, h = 150):
+    """
+    Given a dataset (data), a column of the dataset for the x-axis (column), the desired x-axis title (x_title),
+    and the desired width and height, returns a histogram showing the distribution of values in the column.
+    """
+    numeric_plot = alt.Chart(data, width = w, height = h
+              ).mark_bar(
+              ).encode(
+                  x = alt.X(column, title = x_title, bin = alt.Bin(maxbins=30)),
+                  y = alt.Y("count()", title = "Number of Flights")
+                  )
+    return numeric_plot
+
+# make a list of the numeric columns in the dataset
+numeric_columns = ['CONCURRENT_FLIGHTS', 'FLT_ATTENDANTS_PER_PASS',
+                    'GROUND_SERV_PER_PASS', 'PLANE_AGE', 'SNOW', 'AWND']
+
+# list of titles for each histogram
+histogram_titles = ["Number of Concurrent Flights From the Same Departure Block", "Number of Flight Attendents per Passenger", 
+                    "Number of Ground Service Employees per Passenger", "Plane Age (years)", "Snowfall on Departure Day (inches)",
+                    "Maximum wind speed on departure day (miles/hr)"]
+
+# make histograms for each numeric column
+numeric_plots = [] # accumulates the numeric plots made so far
+for x in range(len(numeric_columns)):
+    numeric_plots.append(make_histogram(flight_train, numeric_columns[x-1], histogram_titles[x-1]))
+    
+# display histograms
+alt.data_transformers.disable_max_rows()
+((numeric_plots[0] | numeric_plots[1]
+ ) & (numeric_plots[2] | numeric_plots[3]
+      ) & (numeric_plots[4] | numeric_plots[5])).properties(title = "Distribution of Numeric Columns in the Training Dataset")
+```
+
+*Figure 1. Distribution of numeric columns in the training dataset*
+
+```{python}
+# distributions of categorical columns
+
+# make frequency charts for categorical columns
+month_plot = alt.Chart(flight_train, width = 280, height = 200
+                     ).mark_bar(size=13
+                     ).encode(
+                         x = alt.X("MONTH", title = "Month"),
+                         y = alt.Y("count()", title = "Number of Flights"),
+                         tooltip = alt.Tooltip("count()")
+                         )
+
+day_of_week_plot  = alt.Chart(flight_train, width = 280, height = 200
+                     ).mark_bar(size = 13
+                     ).encode(
+                         x = alt.X("DAY_OF_WEEK", title = "Day of the Week"),
+                         y = alt.Y("count()", title = "Number of Flights"),
+                         tooltip = alt.Tooltip("count()")
+                         )
+
+carrier_plot  = alt.Chart(flight_train, width = 400, height = 200
+                     ).mark_bar(
+                     ).encode(
+                         x = alt.X("CARRIER_NAME", title = "Air Carrier"),
+                         y = alt.Y("count()", title = "Number of Flights"),
+                         tooltip = alt.Tooltip("count()")
+                         )
+
+delay_plot  = alt.Chart(flight_train, width = 100, height = 200
+                     ).mark_bar(size = 20
+                     ).encode(
+                         x = alt.X("DEP_DEL15", title = "Flight Departure Delay (0 = no, 1 = yes)"),
+                         y = alt.Y("count()", title = "Number of Flights"),
+                         tooltip = alt.Tooltip("count()")
+                         )
+
+# display frequency charts
+alt.data_transformers.disable_max_rows()
+((month_plot | day_of_week_plot) & (carrier_plot | delay_plot)).properties(title = "Distribution of Categorical Columns in the Training Dataset")
+```
+
+*Figure 2. Distribution of numeric columns in the training dataset*
+
+### Preprocessing the Data
+
+Since the KNN algorithm uses Euclidian distance to determine how similar data points are to each cluster center, we will center and scale each numeric feature in our preprocessing so they have the same effect on deciding cluster assignment. We will consider the `month` and `day of the week` as numeric features, as they are represented in the dataset to preserve the ordinal element -- however we will concede that this would make the model consider Saturday (`7`) and Sunday (`1`) as far apart. This won't be a problem for the `months` since the data only has observations from 2019.  
+
+Saturdays and Sundays should be considered closer together since they are on weekends, we will change Sundays' value to `8`. The model will consider Sundays and Mondays to be further apart as a result, but we feel that this is a better trade-off.
+
+To allow our categorical features to be used as predictors, we will preprocess them using one-hot encoding.
+
+No imputation is needed since there are no missing values in the dataset.
+
+```{python}
+# replace Sunday's value from 1 to 8, to be closer to Saturday's value (7)
+flight_train.loc[flight_train['DAY_OF_WEEK']==1, 'DAY_OF_WEEK']=8
+flight_test.loc[flight_test['DAY_OF_WEEK']==1, 'DAY_OF_WEEK']=8
+
+# save taining and test splits.
+flight_train.to_csv("../data/processed/training_flight_data.csv")
+flight_test.to_csv("../data/processed/testing_flight_data.csv")
+
+# check if the replacement worked
+print(flight_train['DAY_OF_WEEK'].describe(), flight_test['DAY_OF_WEEK'].describe())
+```
+
+```{python}
+# separate feature vectors from target
+X_train = flight_train.drop(columns = ["DEP_DEL15"])
+y_train = flight_train["DEP_DEL15"]
+X_test = flight_test.drop(columns = ["DEP_DEL15"])
+y_test = flight_test["DEP_DEL15"]
+
+# preprocess features
+numeric_features = ['MONTH', 'DAY_OF_WEEK', 'CONCURRENT_FLIGHTS', 'FLT_ATTENDANTS_PER_PASS',
+                    'GROUND_SERV_PER_PASS', 'PLANE_AGE', 'SNOW', 'AWND']
+numeric_transformer = make_pipeline(StandardScaler())
+
+categorical_features = ['CARRIER_NAME']
+categorical_transformer = make_pipeline(OneHotEncoder(sparse_output=False, dtype='int'))
+
+preprocessor = make_column_transformer((numeric_transformer, numeric_features),
+                                       (categorical_transformer, categorical_features))
+
+X_train = preprocessor.fit_transform(X_train)
+X_test = preprocessor.transform(X_test)
+```
+
+### Baseline Model
+
+To create a baseline model to compare the final KNN model to, we will make a DummyClassifier that will randomly predict if the flight departure will be delayed or not, at a frequency respective to its distribution in the training data.
+
+```{python}
+# create baseline model to compare final model to
+scoring = {'accuracy': 'accuracy',
+           'precision': make_scorer(precision_score, pos_label=1),
+           'recall': make_scorer(recall_score, pos_label=1),
+           'f1': make_scorer(f1_score, pos_label=1) }
+
+dummy_classifier = DummyClassifier(strategy = "stratified", random_state = 12)
+
+dummy_scores = pd.DataFrame(
+    cross_validate(
+        dummy_classifier, X_train, y_train, cv = 5, return_train_score = True, scoring = scoring
+    )
+)
+
+dummy_mean = dummy_scores.mean()
+dummy_mean
+```
+
+As shown above, the DummyClassifier has a validation score of 69.6%
+
+### KNN Classifier
+
+#### Parameter Tuning
+
+To find the optimal value of k that maximizes the accuracy of the model, we will use 5-fold cross-validation for values of k from 10 to 40, in increments of 2.
+
+```{python}
+# find the k value that yields the best accuracy estimate
+results_dict = {
+    "n_neighbors": [],
+    "mean_train_score": [],
+    "mean_cv_score": []}
+
+for n in range(10,41, 2):
+    knn_model = KNeighborsClassifier(n_neighbors=n)
+    cv_scores = cross_validate(knn_model, X_train, y_train, cv=5, return_train_score=True)
+    results_dict["n_neighbors"].append(n)
+    results_dict["mean_train_score"].append(cv_scores["train_score"].mean())
+    results_dict["mean_cv_score"].append(cv_scores["test_score"].mean())
+
+results_df = pd.DataFrame(results_dict)
+
+results_df.sort_values(by=["mean_cv_score"], ascending=False).head(1)
+```
+
+```{python}
+best_k = int(results_df.loc[results_df['mean_cv_score'].idxmax()]['n_neighbors'])
+best_k
+```
+
+As shown above, 34 is the best k value from 10 to 40 in increments of 2 and yields a validation score of 81.1% which is higher compared to the validation score of the DummyClassifier (69.6%).
+
+#### Training and Testing
+
+```{python}
+# make new model with best k
+best_model = KNeighborsClassifier(n_neighbors=best_k)
+
+# retrain classifier
+best_model.fit(X_train, y_train)
+
+# get predictions on test data
+best_model.predict(X_test)
+
+# get estimate of accuracy of classifier on test data
+test_score = best_model.score(X_test, y_test)
+test_score
+```
+
+The accuracy score of the knn classifier with k=34 on the test set is 81.1%.
+
+#### Exploring the Model
+
+Let’s explore the model with more visualizations.
+
+```{python}
+predictions = best_model.predict(X_test)
+
+# make the predictions into a dataframe and rename the prediction column to "prediction"
+prediction_df = pd.DataFrame(predictions)
+prediction_df = prediction_df.rename(columns={prediction_df.columns[0]:'prediction'})
+
+# reset index of testing dataframe
+flight_test = flight_test.reset_index()
+
+# concatenate the prediction dataframe to the testing dataframe
+flight_test_predict = pd.concat([flight_test, prediction_df], axis=1)
+
+# replace numeric month, day of the week, prediction, and truth values with strings
+flight_test_predict["MONTH"] = flight_test_predict["MONTH"].replace({1:"Jan", 2:"Feb", 3:"Mar", 4:"Apr",
+                                                                     5:"May", 6:"Jun", 7:"Jul", 8:"Aug",
+                                                                     9:"Sep", 10:"Oct", 11:"Nov", 12:"Dec"})
+flight_test_predict["DAY_OF_WEEK"] = flight_test_predict["DAY_OF_WEEK"].replace({2:"Mon", 3:"Tue", 4:"Wed",
+                                                                     5:"Thu", 6:"Fri", 7:"Sat", 8:"Sun"})
+flight_test_predict["prediction"] = flight_test_predict["prediction"].replace({0:"not delayed", 1:"delayed"})
+flight_test_predict["DEP_DEL15"] = flight_test_predict["DEP_DEL15"].replace({0:"not delayed", 1:"delayed"})
+
+# preview the testing dataframe with the model predictions
+flight_test_predict.head()
+```
+
+*Table 2. Preview of the testing data with the model predictions*
+
+```{python}
+# make month vs prediction and actual plot
+
+month_vs_prediction = alt.Chart(flight_test_predict, width = 300, height = 200, title = "Month and Predicted Flight Delay"
+                               ).mark_bar().encode(
+                                   x = alt.X("MONTH", title = "Month", axis=alt.Axis(labelAngle=0),
+                                             sort=["Jan", "Feb", "Mar", "Apr",
+                                                    "May", "Jun", "Jul", "Aug",
+                                                    "Sep", "Oct", "Nov", "Dec"]),
+                                   xOffset="prediction",
+                                   y = alt.Y("count()", title = "Number of Flights"),
+                                   color = alt.Color("prediction", title = "Model Prediction"), 
+                                   tooltip = alt.Tooltip(["count()", "MONTH"])
+                               )
+
+month_vs_real = alt.Chart(flight_test_predict, width = 300, height = 200, title = "Month and Actual Flight Delay"
+                               ).mark_bar().encode(
+                                   x = alt.X("MONTH", title = "Month", axis=alt.Axis(labelAngle=0),
+                                             sort=["Jan", "Feb", "Mar", "Apr",
+                                                    "May", "Jun", "Jul", "Aug",
+                                                    "Sep", "Oct", "Nov", "Dec"]),
+                                   xOffset="DEP_DEL15",
+                                   y = alt.Y("count()", title = "Number of Flights"),
+                                   color = alt.Color("DEP_DEL15", title = "Actual"), 
+                                   tooltip = alt.Tooltip(["count()", "MONTH"])
+                               )
+
+(month_vs_prediction | month_vs_real).resolve_scale(color='independent')
+```
+
+*Figure 3. Distribution of flights over the year in each month with the model's prediction of flight delay and actual flight delay.*
+
+January, April, October, and November were each predicted to have one delayed flight, which does not reflect the distribution of actual delayed flights over the year in the testing data. Flights were delayed relatively steady over the year (about 60 flights per month), with a peak in June that had 92 flights delayed in the testing data.
+
+```{python}
+# make day vs prediction and actual plot
+
+day_vs_prediction = alt.Chart(flight_test_predict, width = 300, height = 250, title = "Day of the Week and Predicted Flight Delay"
+                               ).mark_bar().encode(
+                                   x = alt.X("DAY_OF_WEEK", title = "Day of the Week", axis=alt.Axis(labelAngle=0),
+                                             sort=["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]),
+                                   xOffset="prediction",
+                                   y = alt.Y("count()", title = "Number of Flights"),
+                                   color = alt.Color("prediction", title = "Model Prediction"), 
+                                   tooltip = alt.Tooltip(["count()", "DAY_OF_WEEK"])
+                               )
+
+day_vs_real = alt.Chart(flight_test_predict, width = 300, height = 250, title = "Day of the Week and Actual Flight Delay"
+                               ).mark_bar().encode(
+                                   x = alt.X("DAY_OF_WEEK", title = "Day of the Week", axis=alt.Axis(labelAngle=0),
+                                             sort=["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]),
+                                   xOffset="DEP_DEL15",
+                                   y = alt.Y("count()", title = "Number of Flights"),
+                                   color = alt.Color("DEP_DEL15", title = "Actual"), 
+                                   tooltip = alt.Tooltip(["count()", "DAY_OF_WEEK"])
+                               )
+
+(day_vs_prediction | day_vs_real).resolve_scale(color='independent')
+```
+
+*Figure 4. Distribution of flights over the days of the week with the model's prediction of flight delay and actual flight delay.*
+
+The long weekend (Sunday, Monday, Friday, and Saturday) were each predicted to have one delayed flight. Again, this does not reflect the distribution of actual delayed flights over the week in the testing data. Flights were delayed relatively steady over the week, with a slight peaks on Sunday-Monday and Wednesday-Tuesday in the testing data.
+
+```{python}
+# make carrier vs prediction and actual plot
+
+carrier_vs_prediction = alt.Chart(flight_test_predict, width = 400, height = 300, title = "Flight Carriers and Predicted Flight Delay"
+                               ).mark_bar().encode(
+                                   x = alt.X("CARRIER_NAME", title = "Airline Carrier", axis=alt.Axis(labelAngle=-45)),
+                                   xOffset="prediction",
+                                   y = alt.Y("count()", title = "Number of Flights"),
+                                   color = alt.Color("prediction", title = "Model Prediction"), 
+                                   tooltip = alt.Tooltip(["count()", "CARRIER_NAME"])
+                               )
+
+carrier_vs_real = alt.Chart(flight_test_predict, width = 400, height = 300, title = "Flight Carriers and Actual Flight Delay"
+                               ).mark_bar().encode(
+                                   x = alt.X("CARRIER_NAME", title = "Airline Carrier", axis=alt.Axis(labelAngle=-45)),
+                                   xOffset="DEP_DEL15",
+                                   y = alt.Y("count()", title = "Number of Flights"),
+                                   color = alt.Color("DEP_DEL15", title = "Actual"), 
+                                   tooltip = alt.Tooltip(["count()", "CARRIER_NAME"])
+                               )
+
+(carrier_vs_prediction | carrier_vs_real).resolve_scale(color='independent')
+```
+
+*Figure 5. Distribution of flights over the different air carriers with the model's prediction of flight delay and actual flight delay.*
+
+Delta Airlines Inc., Midwest Airline Inc., Southwest Airlines Co., and Spirit Air Lines were each predicts to have one delayed flight. Once again, this doesn't quite capture the actual delay patterns in the testing data. In the testing data, each airline had *some* delayed flights and the following airlines had the most delayed flights: Southwest Airlines Co., American Airlines Inc., Delta Air Lines Inc., United Air Lines Inc., and SkyWest Airlines Inc.
+
+```{python}
+# make interactive viz for numeric features vs. month
+
+# disable max rows check
+alt.data_transformers.disable_max_rows()
+
+# melt dataframe so the numeric features can be put in a drop-down selection
+melt_flight_predict = flight_test_predict.melt(id_vars=['MONTH', 'DAY_OF_WEEK', 'DEP_DEL15', 'CARRIER_NAME', 'prediction', 'index'])
+
+# make dropdown options
+dropdown_options = ['CONCURRENT_FLIGHTS', 'FLT_ATTENDANTS_PER_PASS', 'GROUND_SERV_PER_PASS', 'PLANE_AGE', 'SNOW', 'AWND']
+
+# make dropdown widget and selection for numeric features
+dropdown_numeric_variable = alt.binding_select(options=dropdown_options, name='Y-axis feature')
+selection = alt.selection_single(
+    fields=['variable'],
+    bind=dropdown_numeric_variable)
+
+# make interactive viz
+drop_down_chart = alt.Chart(melt_flight_predict, width = 1000, height = 400
+                               ).mark_circle(opacity=0.4).encode(
+                                   y = alt.X('value:Q', title=""),
+                                   x = alt.Y('MONTH', title="Month", sort=["Jan", "Feb", "Mar", "Apr",
+                                                                     "May", "Jun", "Jul", "Aug",
+                                                                     "Sep", "Oct", "Nov", "Dec"]),
+                                   color = alt.Color('prediction', title="Model Prediction")
+                               ).add_selection(selection).transform_filter(selection)
+drop_down_chart.display()
+```
+
+*Figure 6. Interactive plot of flight month vs. selected numeric feature and the model's prediction if the flight will be delayed or not.*
+
+In the above plot, we can explore the flight month  vs. the different numeric features and the model's prediction if the flight will be delayed or not.  
+
+**Number of concurrent flights from the same departure block, number of flight attendants per passenger, number of ground service employees per passenger, plane age (years), maximum wind speed on departure day (miles/hr)** do not seem to be associated with the model's prediction.  
+
+Meanwhile, it appears that very large amounts of **snowfall on departure day (inches)** tended to be associated with predicted flight delay while smaller amounts were associated with predicted flight non-delay.
+
+Overall, it appears that our model tends to predict that a flight will not be delayed.
+
+## Discussion
+
+Even though for the most part, the model which we created predicts that flights will not be delayed, it is crucial that it has still been predicting instances where it they could be delayed. Since this is the case, it means that the model can be implemented in multiple different ways. Since this is a sort of "special case" prediction, it makes the model all the more valuable as it can be used to save people stress, time, or even money. Due to its versatility, we came up with a couple of different options of how it could be used, but still it could be used even more than these.
+
+The first way which we came up is as an alarm. Airlines have become better at notifying their passengers that a flight is delayed, with many notifying with different means such as text, email, or maybe even through their own application besides through announcements at the airport. This can be a major disruption to those having a meal, who need food, or who even may need to use the restroom. The model could possibly be implemented into the aforementioned application and give a "prediction" of whether or not a flight will be delayed based on the existing conditions. That way, airlines could warn their passengers of the possibility of a delay in order for them to have more time more of a grasp of the time they have before a possible announcement.
+
+The second form that we thought of was when booking tickets themselves. While storms and blizzards cannot be predicted, for the most part, weather patterns tend to be similar in the same time period of every year. It is more likely to receive snowfall in the middle of winter than at the end of spring. Because of this, when someone is booking a flight could be associated with whether or not delays could happen based on previous years. Once again this could help customers or even travel agents, if this method is to be more privatized, in booking flights in order to fly on a "safer" day or in one where something as bothersome as a flight delay has a lower chance of happening. Now it is important to note that we are classifying whether or not a flight is delayed, not predicting the probability of the latter happening. However, even the yes or no can still be useful to those buying tickets to try to plan better, or even on the end of the companies to provide discounts in the "riskier" days.
+
+Finally, we thought of the possibility of it being implemented into airports. These delays are happening somewhere, obviously, and they need to be addressed by the companies and workers at these locations. While no workspace or workflow can be perfect, there are steps that can be taken to be better prepared so that their impact is not as bothersome. If a day is predicted to have delays, or if the prediction changes when the weather or other conditions change as well, airports can implement these allocations such as having more spots open, aid for passengers, more workers, etc. to attempt to handle the situation as best as possible.
+
+When looking forward which what could be done with our model, we think it could be beneficial to pair it with a prediction model for something such as weather. Also, delays are one thing to deal with, cancellations are another which is even more bothersome. If this model is valuable, the same argument (or maybe even a better one) can be made for a model that predicts flight cancellations.
+
+## References
+Harris, C. R., Millman, K. J., van der Walt, S. J., Gommers, R., Virtanen, P., Cournapeau, D., … Oliphant, T. E. (2020). Array programming with NumPy. *Nature*, 585, 357–362. https://doi.org/10.1038/s41586-020-2649-2
+
+McKinney, W., & others. (2010). Data structures for statistical computing in python. *Proceedings of the 9th Python in Science Conference* (Vol. 445, pp. 51–56).
+
+Pedregosa, F., Varoquaux, Ga"el, Gramfort, A., Michel, V., Thirion, B., Grisel, O., … others. (2011). Scikit-learn: Machine learning in Python. *Journal of Machine Learning Research*, 12(Oct), 2825–2830.
+
+VanderPlas, J., Granger, B., Heer, J., Moritz, D., Wongsuphasawat, K., Satyanarayan, A., … Sievert, S. (2018). Altair: Interactive statistical visualizations for python. *Journal of Open Source Software*, 3(32), 1057.
+
+Wadkins, J. (2022, January 17). 2019 airline delays w/weather and airport detail. Kaggle. https://www.kaggle.com/datasets/threnjen/2019-airline-delays-and-cancellations 
+
