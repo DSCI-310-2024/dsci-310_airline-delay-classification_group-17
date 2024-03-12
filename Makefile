@@ -12,6 +12,8 @@
 # make clean
 # make all
 
+all: 
+
 # process the data
 dats : data/processed/01_filtered-data.csv \
 data/processed/02_flight-train.csv \
@@ -21,32 +23,48 @@ data/processed/03_y-train.csv \
 data/processed/03_X-test.csv \
 data/processed/03_y-test.csv
 
-data/processed/01_filtered-data.csv :
-data/processed/02_flight-train.csv :
-data/processed/02_flight-test.csv :
-data/processed/03_X-train.csv :
-data/processed/03_y-train.csv :
-data/processed/03_X-test.csv :
-data/processed/03_y-test.csv :
+data/processed/01_filtered-data.csv : src/01_filter-raw-data.py data/raw/full_data_flightdelay.csv
+
+data/processed/02_flight-train.csv : src/02_split-data.py data/processed/01_filtered-data.csv
+
+data/processed/02_flight-test.csv : src/02_split-data.py data/processed/01_filtered-data.csv
+
+data/processed/03_X-train.csv : src/04_preprocess-separate-data.py data/processed/02_flight-train.csv
+
+data/processed/03_y-train.csv : src/04_preprocess-separate-data.py data/processed/02_flight-train.csv
+
+data/processed/03_X-test.csv : src/04_preprocess-separate-data.py data/processed/02_flight-test.csv
+
+data/processed/03_y-test.csv :src/04_preprocess-separate-data.py data/processed/02_flight-test.csv
 
 # make eda plots
 eda : results/eda_01_tbl_training-data-preview \
 results/eda_02_fig_numeric-columns-histograms.png \
 results/eda_02_fig_categorical-columns-plots.png
 
-results/eda_01_tbl_training-data-preview :
-results/eda_02_fig_numeric-columns-histograms.png :
-results/eda_02_fig_categorical-columns-plots.png :
+results/eda_01_tbl_training-data-preview : src/03_eda.py data/processed/02_flight-train.csv
+
+results/eda_02_fig_numeric-columns-histograms.png : src/03_eda.py data/processed/02_flight-train.csv
+
+results/eda_02_fig_categorical-columns-plots.png : src/03_eda.py data/processed/02_flight-train.csv
+
 
 # create the models
 models: results/01_baseline-model.pickle \
 results/02_best-knn-model.pickle
 
-results/01_baseline-model.pickle :
-results/02_best-knn-model.pickle :
+results/01_baseline-model.pickle : src/05_baseline-model-accuracy.py \
+data/processed/03_X-train.csv data/processed/03_y-train.csv
+
+results/02_best-knn-model.pickle : src/06_knn-parameter-tuning.py \
+data/processed/03_X-train.csv data/processed/03_y-train.csv
+
 
 # get predictions and accuracy of the knn model
-results/03_knn-test-predict.csv :
+results/03_knn-test-predict.csv : src/07_knn-train-test.py \
+data/processed/03_X-train.csv data/processed/03_y-train.csv \
+results/02_best-knn-model.pickle
+
 
 # create the results plots
 results-plots : results/04_fig_month-vs-prediction-actual.png \
@@ -54,13 +72,17 @@ results/05_fig_day-vs-prediction-actual.png \
 results/06_fig_carrier-vs-prediction-actual.png \
 results/07_fig_numeric-feats-interactive-viz
 
-results/04_fig_month-vs-prediction-actual.png :
-results/05_fig_day-vs-prediction-actual.png :
-results/06_fig_carrier-vs-prediction-actual.png :
-results/07_fig_numeric-feats-interactive-viz :
+results/04_fig_month-vs-prediction-actual.png : src/08_make-figs.py results/03_knn-test-predict.csv
+
+results/05_fig_day-vs-prediction-actual.png : src/08_make-figs.py results/03_knn-test-predict.csv
+
+results/06_fig_carrier-vs-prediction-actual.png : src/08_make-figs.py results/03_knn-test-predict.csv
+
+results/07_fig_numeric-feats-interactive-viz : src/08_make-figs.py results/03_knn-test-predict.csv
 
 # render the report
-reports/airline-delay-classification-report.html : 
+reports/airline-delay-classification-report.html : reports/airline-delay-classification-report.qmd \
+eda results-plots
 
 # clean output :
 clean-dats :
