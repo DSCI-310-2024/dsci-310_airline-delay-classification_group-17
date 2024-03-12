@@ -1,9 +1,16 @@
 ---
 title: Analysis and Prediction of Airline Delays in 2019
+author: "Siddharth Balodi, Charles Benkard, Mikel Ibarra Gallardo, and Stephanie Ta"
 jupyter: python3
+format:
+    html:
+        toc: true
+        toc-depth: 3
+bibliography: references.bib
+execute:
+    echo: false
+editor: source ####not sure
 ---
-
-Authors: Siddharth Balodi, Charles Benkard, Mikel Ibarra Gallardo, and Stephanie Ta
 
 
 ## Summary
