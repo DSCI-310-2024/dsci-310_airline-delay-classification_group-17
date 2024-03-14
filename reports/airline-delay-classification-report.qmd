@@ -27,52 +27,7 @@ The airline industry plays a vital role in global transportation, yet it faces c
 
 ## Methods and Results
 
-To start, we will import the required libraries for our analysis, set the random state to generate reproducible results, and read in the data.
-
-```{python}
-# import required libraries for analysis
-import altair as alt
-import pandas as pd
-import numpy as np
-import sklearn
-from sklearn.model_selection import train_test_split
-from sklearn.dummy import DummyClassifier
-from sklearn.model_selection import train_test_split, cross_validate, GridSearchCV, RandomizedSearchCV
-from sklearn.preprocessing import (FunctionTransformer, Normalizer, OneHotEncoder, StandardScaler, normalize, scale)
-from sklearn.compose import make_column_transformer
-from sklearn.metrics import make_scorer
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from sklearn.pipeline import Pipeline, make_pipeline
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import  confusion_matrix, ConfusionMatrixDisplay, classification_report
-
-# set random state to have reproducible results
-random_state=12
-
-# read in data
-raw_full_flight_data = pd.read_csv("../data/raw/full_data_flightdelay.csv")
-```
-
-Let's see how big the data set is.
-
-```{python}
-raw_full_flight_data.shape
-```
-
-There are 6,489,062 observations in the raw data set. Since such a large data set will take a lot of computing power and time, we will take sample of the data (20,000 observations) and use it in our analysis.
-
-```{python}
-# sample 20,000 observations from the raw data set
-raw_sample_flight_data = raw_full_flight_data.sample(n=20000, random_state=12)
-
-# save the sample data set
-raw_sample_flight_data.to_csv("../data/processed/raw_sample_flight_data.csv")
-
-# check shape of sample to confirm the sampling worked
-raw_sample_flight_data.shape
-```
-
-Let's clean our sample data by only keeping the features of interest and the target column in our data.  
+To start, we imported the required libraries for our analysis, set the random state to generate reproducible results, and read in the data. Then we only kept the features of interest and the target column in the data.
 
 Features:
 - Month (`MONTH`)
@@ -88,22 +43,7 @@ Features:
 Target:
 - If the departing flight is delayed over 15 minutes or not (`DEP_DEL15`, `0` = no and `1` = yes)
 
-Then, we'll split the data into training and testing sets.
-
-```{python}
-# list of features and target (DEP_DEL15) columns
-list_of_features_and_target = ['MONTH', 'DAY_OF_WEEK', 'DEP_DEL15', 'CONCURRENT_FLIGHTS', 'CARRIER_NAME',
- 'FLT_ATTENDANTS_PER_PASS', 'GROUND_SERV_PER_PASS', 'PLANE_AGE', 'SNOW', 'AWND']
-
-# only keep the features of interest and the target column in the data set
-filtered_sample_flight_data = raw_sample_flight_data[list_of_features_and_target]
-
-# save the filtered sample data set
-filtered_sample_flight_data.to_csv("../data/processed/filtered_sample_flight_data.csv")
-
-# split filtered sample data into training and testing splits.
-flight_train, flight_test = train_test_split(filtered_sample_flight_data, test_size=0.2, random_state=12, stratify=filtered_sample_flight_data["DEP_DEL15"])
-```
+Then, we split the data into training and testing sets.
 
 ### Exploratory Data Analysis
 
@@ -121,88 +61,10 @@ flight_train.info()
 
 We can see that there are no null values in any of the columns. To gain more insight into the training data, the following data visualizations were made to see the distribution of the different feature variables and target variable.
 
-```{python}
-# distributions of numeric columns
+![Distribution of numeric columns in the training dataset.](../results/eda_02_fig_categorical-columns-plots.png){#fig-eda-categorical width=90%}
 
-# make histogram function for the numeric columns
-def make_histogram(data, column: str, x_title: str, w = 250, h = 150):
-    """
-    Given a dataset (data), a column of the dataset for the x-axis (column), the desired x-axis title (x_title),
-    and the desired width and height, returns a histogram showing the distribution of values in the column.
-    """
-    numeric_plot = alt.Chart(data, width = w, height = h
-              ).mark_bar(
-              ).encode(
-                  x = alt.X(column, title = x_title, bin = alt.Bin(maxbins=30)),
-                  y = alt.Y("count()", title = "Number of Flights")
-                  )
-    return numeric_plot
 
-# make a list of the numeric columns in the dataset
-numeric_columns = ['CONCURRENT_FLIGHTS', 'FLT_ATTENDANTS_PER_PASS',
-                    'GROUND_SERV_PER_PASS', 'PLANE_AGE', 'SNOW', 'AWND']
-
-# list of titles for each histogram
-histogram_titles = ["Number of Concurrent Flights From the Same Departure Block", "Number of Flight Attendents per Passenger", 
-                    "Number of Ground Service Employees per Passenger", "Plane Age (years)", "Snowfall on Departure Day (inches)",
-                    "Maximum wind speed on departure day (miles/hr)"]
-
-# make histograms for each numeric column
-numeric_plots = [] # accumulates the numeric plots made so far
-for x in range(len(numeric_columns)):
-    numeric_plots.append(make_histogram(flight_train, numeric_columns[x-1], histogram_titles[x-1]))
-    
-# display histograms
-alt.data_transformers.disable_max_rows()
-((numeric_plots[0] | numeric_plots[1]
- ) & (numeric_plots[2] | numeric_plots[3]
-      ) & (numeric_plots[4] | numeric_plots[5])).properties(title = "Distribution of Numeric Columns in the Training Dataset")
-```
-
-*Figure 1. Distribution of numeric columns in the training dataset*
-
-```{python}
-# distributions of categorical columns
-
-# make frequency charts for categorical columns
-month_plot = alt.Chart(flight_train, width = 280, height = 200
-                     ).mark_bar(size=13
-                     ).encode(
-                         x = alt.X("MONTH", title = "Month"),
-                         y = alt.Y("count()", title = "Number of Flights"),
-                         tooltip = alt.Tooltip("count()")
-                         )
-
-day_of_week_plot  = alt.Chart(flight_train, width = 280, height = 200
-                     ).mark_bar(size = 13
-                     ).encode(
-                         x = alt.X("DAY_OF_WEEK", title = "Day of the Week"),
-                         y = alt.Y("count()", title = "Number of Flights"),
-                         tooltip = alt.Tooltip("count()")
-                         )
-
-carrier_plot  = alt.Chart(flight_train, width = 400, height = 200
-                     ).mark_bar(
-                     ).encode(
-                         x = alt.X("CARRIER_NAME", title = "Air Carrier"),
-                         y = alt.Y("count()", title = "Number of Flights"),
-                         tooltip = alt.Tooltip("count()")
-                         )
-
-delay_plot  = alt.Chart(flight_train, width = 100, height = 200
-                     ).mark_bar(size = 20
-                     ).encode(
-                         x = alt.X("DEP_DEL15", title = "Flight Departure Delay (0 = no, 1 = yes)"),
-                         y = alt.Y("count()", title = "Number of Flights"),
-                         tooltip = alt.Tooltip("count()")
-                         )
-
-# display frequency charts
-alt.data_transformers.disable_max_rows()
-((month_plot | day_of_week_plot) & (carrier_plot | delay_plot)).properties(title = "Distribution of Categorical Columns in the Training Dataset")
-```
-
-*Figure 2. Distribution of numeric columns in the training dataset*
+![Distribution of categorical columns in the training dataset.](../results/eda_02_fig_categorical-columns-plots.png){#fig-eda-categorical width=90%}
 
 ### Preprocessing the Data
 
