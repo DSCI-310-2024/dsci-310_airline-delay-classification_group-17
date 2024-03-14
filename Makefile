@@ -41,13 +41,13 @@ data/processed/03_y-test.csv :src/04_preprocess-separate-data.py data/processed/
 # make eda plots
 eda : results/eda_01_tbl_training-data-preview \
 results/eda_02_fig_numeric-columns-histograms.png \
-results/eda_02_fig_categorical-columns-plots.png
+results/eda_03_fig_categorical-columns-plots.png
 
 results/eda_01_tbl_training-data-preview : src/03_eda.py data/processed/02_flight-train.csv
 	python src/03_eda.py
 results/eda_02_fig_numeric-columns-histograms.png : src/03_eda.py data/processed/02_flight-train.csv
 	python src/03_eda.py
-results/eda_02_fig_categorical-columns-plots.png : src/03_eda.py data/processed/02_flight-train.csv
+results/eda_03_fig_categorical-columns-plots.png : src/03_eda.py data/processed/02_flight-train.csv
 	python src/03_eda.py
 
 # create the models
@@ -100,7 +100,7 @@ clean-dats :
 clean-eda :
 	rm -f results/eda_01_tbl_training-data-preview \
 	results/eda_02_fig_numeric-columns-histograms.png \
-	results/eda_02_fig_categorical-columns-plots.png
+	results/eda_03_fig_categorical-columns-plots.png
 
 clean-models :
 	rm -f results/01_baseline-model.pickle \
