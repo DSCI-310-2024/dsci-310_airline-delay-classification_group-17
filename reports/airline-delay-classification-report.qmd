@@ -68,124 +68,32 @@ We can see that there are no null values in any of the columns. To gain more ins
 
 ### Preprocessing the Data
 
-Since the KNN algorithm uses Euclidian distance to determine how similar data points are to each cluster center, we will center and scale each numeric feature in our preprocessing so they have the same effect on deciding cluster assignment. We will consider the `month` and `day of the week` as numeric features, as they are represented in the dataset to preserve the ordinal element -- however we will concede that this would make the model consider Saturday (`7`) and Sunday (`1`) as far apart. This won't be a problem for the `months` since the data only has observations from 2019.  
+Since the KNN algorithm uses Euclidian distance to determine how similar data points are to each cluster center, we centered and scaled each numeric feature in our preprocessing so they have the same effect on deciding cluster assignment. We considered the `month` and `day of the week` as numeric features, as they are represented in the dataset to preserve the ordinal element -- however we will concede that this would make the model consider Saturday (`7`) and Sunday (`1`) as far apart. This won't be a problem for the `months` since the data only has observations from 2019.  
 
-Saturdays and Sundays should be considered closer together since they are on weekends, we will change Sundays' value to `8`. The model will consider Sundays and Mondays to be further apart as a result, but we feel that this is a better trade-off.
+Saturdays and Sundays should be considered closer together since they are on weekends, so we changed Sundays' value to `8`. The model considers Sundays and Mondays to be further apart as a result, but we feel that this is a better trade-off.
 
-To allow our categorical features to be used as predictors, we will preprocess them using one-hot encoding.
+To allow our categorical features to be used as predictors, we preprocessed them using one-hot encoding.
 
 No imputation is needed since there are no missing values in the dataset.
 
-```{python}
-# replace Sunday's value from 1 to 8, to be closer to Saturday's value (7)
-flight_train.loc[flight_train['DAY_OF_WEEK']==1, 'DAY_OF_WEEK']=8
-flight_test.loc[flight_test['DAY_OF_WEEK']==1, 'DAY_OF_WEEK']=8
-
-# save taining and test splits.
-flight_train.to_csv("../data/processed/training_flight_data.csv")
-flight_test.to_csv("../data/processed/testing_flight_data.csv")
-
-# check if the replacement worked
-print(flight_train['DAY_OF_WEEK'].describe(), flight_test['DAY_OF_WEEK'].describe())
-```
-
-```{python}
-# separate feature vectors from target
-X_train = flight_train.drop(columns = ["DEP_DEL15"])
-y_train = flight_train["DEP_DEL15"]
-X_test = flight_test.drop(columns = ["DEP_DEL15"])
-y_test = flight_test["DEP_DEL15"]
-
-# preprocess features
-numeric_features = ['MONTH', 'DAY_OF_WEEK', 'CONCURRENT_FLIGHTS', 'FLT_ATTENDANTS_PER_PASS',
-                    'GROUND_SERV_PER_PASS', 'PLANE_AGE', 'SNOW', 'AWND']
-numeric_transformer = make_pipeline(StandardScaler())
-
-categorical_features = ['CARRIER_NAME']
-categorical_transformer = make_pipeline(OneHotEncoder(sparse_output=False, dtype='int'))
-
-preprocessor = make_column_transformer((numeric_transformer, numeric_features),
-                                       (categorical_transformer, categorical_features))
-
-X_train = preprocessor.fit_transform(X_train)
-X_test = preprocessor.transform(X_test)
-```
-
 ### Baseline Model
 
-To create a baseline model to compare the final KNN model to, we will make a DummyClassifier that will randomly predict if the flight departure will be delayed or not, at a frequency respective to its distribution in the training data.
+To create a baseline model to compare the final KNN model to, we made a DummyClassifier that will randomly predict if the flight departure will be delayed or not, at a frequency respective to its distribution in the training data.
 
-```{python}
-# create baseline model to compare final model to
-scoring = {'accuracy': 'accuracy',
-           'precision': make_scorer(precision_score, pos_label=1),
-           'recall': make_scorer(recall_score, pos_label=1),
-           'f1': make_scorer(f1_score, pos_label=1) }
-
-dummy_classifier = DummyClassifier(strategy = "stratified", random_state = 12)
-
-dummy_scores = pd.DataFrame(
-    cross_validate(
-        dummy_classifier, X_train, y_train, cv = 5, return_train_score = True, scoring = scoring
-    )
-)
-
-dummy_mean = dummy_scores.mean()
-dummy_mean
-```
-
-As shown above, the DummyClassifier has a validation score of 69.6%
+We found that the DummyClassifier had a validation score of +++++++.
 
 ### KNN Classifier
 
 #### Parameter Tuning
 
-To find the optimal value of k that maximizes the accuracy of the model, we will use 5-fold cross-validation for values of k from 10 to 40, in increments of 2.
+To find the optimal value of k that maximizes the accuracy of the model, we used 5-fold cross-validation for values of k from 10 to 40, in increments of 2.
 
-```{python}
-# find the k value that yields the best accuracy estimate
-results_dict = {
-    "n_neighbors": [],
-    "mean_train_score": [],
-    "mean_cv_score": []}
-
-for n in range(10,41, 2):
-    knn_model = KNeighborsClassifier(n_neighbors=n)
-    cv_scores = cross_validate(knn_model, X_train, y_train, cv=5, return_train_score=True)
-    results_dict["n_neighbors"].append(n)
-    results_dict["mean_train_score"].append(cv_scores["train_score"].mean())
-    results_dict["mean_cv_score"].append(cv_scores["test_score"].mean())
-
-results_df = pd.DataFrame(results_dict)
-
-results_df.sort_values(by=["mean_cv_score"], ascending=False).head(1)
-```
-
-```{python}
-best_k = int(results_df.loc[results_df['mean_cv_score'].idxmax()]['n_neighbors'])
-best_k
-```
-
-As shown above, 34 is the best k value from 10 to 40 in increments of 2 and yields a validation score of 81.1% which is higher compared to the validation score of the DummyClassifier (69.6%).
+We found that +++++++ is the best k value from 10 to 40 in increments of 2 and yields a validation score of +++++++ which is higher compared to the validation score of the DummyClassifier (+++++++).
 
 #### Training and Testing
 
-```{python}
-# make new model with best k
-best_model = KNeighborsClassifier(n_neighbors=best_k)
-
-# retrain classifier
-best_model.fit(X_train, y_train)
-
-# get predictions on test data
-best_model.predict(X_test)
-
-# get estimate of accuracy of classifier on test data
-test_score = best_model.score(X_test, y_test)
-test_score
-```
-
-The accuracy score of the knn classifier with k=34 on the test set is 81.1%.
+We then made a new model using the best k value (++++), retrained the classifier, and got predictions on 
+the test data. This model yielded an accuracy score of +++++ on the test set.
 
 #### Exploring the Model
 
