@@ -272,13 +272,5 @@ Finally, we thought of the possibility of it being implemented into airports. Th
 When looking forward which what could be done with our model, we think it could be beneficial to pair it with a prediction model for something such as weather. Also, delays are one thing to deal with, cancellations are another which is even more bothersome. If this model is valuable, the same argument (or maybe even a better one) can be made for a model that predicts flight cancellations.
 
 ## References
-Harris, C. R., Millman, K. J., van der Walt, S. J., Gommers, R., Virtanen, P., Cournapeau, D., … Oliphant, T. E. (2020). Array programming with NumPy. *Nature*, 585, 357–362. https://doi.org/10.1038/s41586-020-2649-2
 
-McKinney, W., & others. (2010). Data structures for statistical computing in python. *Proceedings of the 9th Python in Science Conference* (Vol. 445, pp. 51–56).
-
-Pedregosa, F., Varoquaux, Ga"el, Gramfort, A., Michel, V., Thirion, B., Grisel, O., … others. (2011). Scikit-learn: Machine learning in Python. *Journal of Machine Learning Research*, 12(Oct), 2825–2830.
-
-VanderPlas, J., Granger, B., Heer, J., Moritz, D., Wongsuphasawat, K., Satyanarayan, A., … Sievert, S. (2018). Altair: Interactive statistical visualizations for python. *Journal of Open Source Software*, 3(32), 1057.
-
-Wadkins, J. (2022, January 17). 2019 airline delays w/weather and airport detail. Kaggle. https://www.kaggle.com/datasets/threnjen/2019-airline-delays-and-cancellations 
 
