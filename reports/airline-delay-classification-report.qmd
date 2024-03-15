@@ -50,13 +50,13 @@ Then, we split the data into training and testing sets.
 Let's preview the testing set and have a look at some information about the data.
 
 ```{python}
-flight_train.head()
+###flight_train.head()++++
 ```
 
-*Table 1. Preview of the training flight data.*
+*Table 1. Preview of the training flight data.* +++++++++++++
 
 ```{python}
-flight_train.info()
+###flight_train.info()++++
 ```
 
 We can see that there are no null values in any of the columns. To gain more insight into the training data, the following data visualizations were made to see the distribution of the different feature variables and target variable.
@@ -100,158 +100,31 @@ the test data. This model yielded an accuracy score of +++++ on the test set.
 Let’s explore the model with more visualizations.
 
 ```{python}
-predictions = best_model.predict(X_test)
-
-# make the predictions into a dataframe and rename the prediction column to "prediction"
-prediction_df = pd.DataFrame(predictions)
-prediction_df = prediction_df.rename(columns={prediction_df.columns[0]:'prediction'})
-
-# reset index of testing dataframe
-flight_test = flight_test.reset_index()
-
-# concatenate the prediction dataframe to the testing dataframe
-flight_test_predict = pd.concat([flight_test, prediction_df], axis=1)
-
-# replace numeric month, day of the week, prediction, and truth values with strings
-flight_test_predict["MONTH"] = flight_test_predict["MONTH"].replace({1:"Jan", 2:"Feb", 3:"Mar", 4:"Apr",
-                                                                     5:"May", 6:"Jun", 7:"Jul", 8:"Aug",
-                                                                     9:"Sep", 10:"Oct", 11:"Nov", 12:"Dec"})
-flight_test_predict["DAY_OF_WEEK"] = flight_test_predict["DAY_OF_WEEK"].replace({2:"Mon", 3:"Tue", 4:"Wed",
-                                                                     5:"Thu", 6:"Fri", 7:"Sat", 8:"Sun"})
-flight_test_predict["prediction"] = flight_test_predict["prediction"].replace({0:"not delayed", 1:"delayed"})
-flight_test_predict["DEP_DEL15"] = flight_test_predict["DEP_DEL15"].replace({0:"not delayed", 1:"delayed"})
-
 # preview the testing dataframe with the model predictions
-flight_test_predict.head()
+# flight_test_predict.head()
 ```
 
-*Table 2. Preview of the testing data with the model predictions*
+*Table 2. Preview of the testing data with the model predictions* ++++++++++++++
+
+![Distribution of flights over the year in each month with the model's prediction of flight delay and actual flight delay.](../results/04_fig_month-vs-prediction-actual.png){#fig-month width=90%}
+
+As seen in @fig-month, January, April, October, and November were each predicted to have one delayed flight, which does not reflect the distribution of actual delayed flights over the year in the testing data. Flights were delayed relatively steady over the year (about 60 flights per month), with a peak in June that had 92 flights delayed in the testing data.
+
+![Distribution of flights over the days of the week with the model's prediction of flight delay and actual flight delay.](../results/05_fig_day-vs-prediction-actual.png){#fig-day width=90%}
+
+In @fig-day, we can see that the days in the long weekend (Sunday, Monday, Friday, and Saturday) were each predicted to have one delayed flight. Again, this does not reflect the distribution of actual delayed flights over the week in the testing data. Flights were delayed relatively steady over the week, with a slight peaks on Sunday-Monday and Wednesday-Tuesday in the testing data.
+
+![Distribution of flights over the different air carriers with the model's prediction of flight delay and actual flight delay.](../results/06_fig_carrier-vs-prediction-actual.png){#fig-carrier width=90%}
+
+Delta Airlines Inc., Midwest Airline Inc., Southwest Airlines Co., and Spirit Air Lines were each predicted to have one delayed flight, as seen in @fig-carrier. Once again, this doesn't quite capture the actual delay patterns in the testing data. In the testing data, each airline had *some* delayed flights and the following airlines had the most delayed flights: Southwest Airlines Co., American Airlines Inc., Delta Air Lines Inc., United Air Lines Inc., and SkyWest Airlines Inc.
 
 ```{python}
-# make month vs prediction and actual plot
-
-month_vs_prediction = alt.Chart(flight_test_predict, width = 300, height = 200, title = "Month and Predicted Flight Delay"
-                               ).mark_bar().encode(
-                                   x = alt.X("MONTH", title = "Month", axis=alt.Axis(labelAngle=0),
-                                             sort=["Jan", "Feb", "Mar", "Apr",
-                                                    "May", "Jun", "Jul", "Aug",
-                                                    "Sep", "Oct", "Nov", "Dec"]),
-                                   xOffset="prediction",
-                                   y = alt.Y("count()", title = "Number of Flights"),
-                                   color = alt.Color("prediction", title = "Model Prediction"), 
-                                   tooltip = alt.Tooltip(["count()", "MONTH"])
-                               )
-
-month_vs_real = alt.Chart(flight_test_predict, width = 300, height = 200, title = "Month and Actual Flight Delay"
-                               ).mark_bar().encode(
-                                   x = alt.X("MONTH", title = "Month", axis=alt.Axis(labelAngle=0),
-                                             sort=["Jan", "Feb", "Mar", "Apr",
-                                                    "May", "Jun", "Jul", "Aug",
-                                                    "Sep", "Oct", "Nov", "Dec"]),
-                                   xOffset="DEP_DEL15",
-                                   y = alt.Y("count()", title = "Number of Flights"),
-                                   color = alt.Color("DEP_DEL15", title = "Actual"), 
-                                   tooltip = alt.Tooltip(["count()", "MONTH"])
-                               )
-
-(month_vs_prediction | month_vs_real).resolve_scale(color='independent')
+# interactive viz for numeric features vs. month
 ```
 
-*Figure 3. Distribution of flights over the year in each month with the model's prediction of flight delay and actual flight delay.*
+![Interactive plot of flight month vs. selected numeric feature and the model's prediction if the flight will be delayed or not.](../results/07_fig_numeric-feats-interactive-viz.png){#fig-interactive width=90%}
 
-January, April, October, and November were each predicted to have one delayed flight, which does not reflect the distribution of actual delayed flights over the year in the testing data. Flights were delayed relatively steady over the year (about 60 flights per month), with a peak in June that had 92 flights delayed in the testing data.
-
-```{python}
-# make day vs prediction and actual plot
-
-day_vs_prediction = alt.Chart(flight_test_predict, width = 300, height = 250, title = "Day of the Week and Predicted Flight Delay"
-                               ).mark_bar().encode(
-                                   x = alt.X("DAY_OF_WEEK", title = "Day of the Week", axis=alt.Axis(labelAngle=0),
-                                             sort=["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]),
-                                   xOffset="prediction",
-                                   y = alt.Y("count()", title = "Number of Flights"),
-                                   color = alt.Color("prediction", title = "Model Prediction"), 
-                                   tooltip = alt.Tooltip(["count()", "DAY_OF_WEEK"])
-                               )
-
-day_vs_real = alt.Chart(flight_test_predict, width = 300, height = 250, title = "Day of the Week and Actual Flight Delay"
-                               ).mark_bar().encode(
-                                   x = alt.X("DAY_OF_WEEK", title = "Day of the Week", axis=alt.Axis(labelAngle=0),
-                                             sort=["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]),
-                                   xOffset="DEP_DEL15",
-                                   y = alt.Y("count()", title = "Number of Flights"),
-                                   color = alt.Color("DEP_DEL15", title = "Actual"), 
-                                   tooltip = alt.Tooltip(["count()", "DAY_OF_WEEK"])
-                               )
-
-(day_vs_prediction | day_vs_real).resolve_scale(color='independent')
-```
-
-*Figure 4. Distribution of flights over the days of the week with the model's prediction of flight delay and actual flight delay.*
-
-The long weekend (Sunday, Monday, Friday, and Saturday) were each predicted to have one delayed flight. Again, this does not reflect the distribution of actual delayed flights over the week in the testing data. Flights were delayed relatively steady over the week, with a slight peaks on Sunday-Monday and Wednesday-Tuesday in the testing data.
-
-```{python}
-# make carrier vs prediction and actual plot
-
-carrier_vs_prediction = alt.Chart(flight_test_predict, width = 400, height = 300, title = "Flight Carriers and Predicted Flight Delay"
-                               ).mark_bar().encode(
-                                   x = alt.X("CARRIER_NAME", title = "Airline Carrier", axis=alt.Axis(labelAngle=-45)),
-                                   xOffset="prediction",
-                                   y = alt.Y("count()", title = "Number of Flights"),
-                                   color = alt.Color("prediction", title = "Model Prediction"), 
-                                   tooltip = alt.Tooltip(["count()", "CARRIER_NAME"])
-                               )
-
-carrier_vs_real = alt.Chart(flight_test_predict, width = 400, height = 300, title = "Flight Carriers and Actual Flight Delay"
-                               ).mark_bar().encode(
-                                   x = alt.X("CARRIER_NAME", title = "Airline Carrier", axis=alt.Axis(labelAngle=-45)),
-                                   xOffset="DEP_DEL15",
-                                   y = alt.Y("count()", title = "Number of Flights"),
-                                   color = alt.Color("DEP_DEL15", title = "Actual"), 
-                                   tooltip = alt.Tooltip(["count()", "CARRIER_NAME"])
-                               )
-
-(carrier_vs_prediction | carrier_vs_real).resolve_scale(color='independent')
-```
-
-*Figure 5. Distribution of flights over the different air carriers with the model's prediction of flight delay and actual flight delay.*
-
-Delta Airlines Inc., Midwest Airline Inc., Southwest Airlines Co., and Spirit Air Lines were each predicts to have one delayed flight. Once again, this doesn't quite capture the actual delay patterns in the testing data. In the testing data, each airline had *some* delayed flights and the following airlines had the most delayed flights: Southwest Airlines Co., American Airlines Inc., Delta Air Lines Inc., United Air Lines Inc., and SkyWest Airlines Inc.
-
-```{python}
-# make interactive viz for numeric features vs. month
-
-# disable max rows check
-alt.data_transformers.disable_max_rows()
-
-# melt dataframe so the numeric features can be put in a drop-down selection
-melt_flight_predict = flight_test_predict.melt(id_vars=['MONTH', 'DAY_OF_WEEK', 'DEP_DEL15', 'CARRIER_NAME', 'prediction', 'index'])
-
-# make dropdown options
-dropdown_options = ['CONCURRENT_FLIGHTS', 'FLT_ATTENDANTS_PER_PASS', 'GROUND_SERV_PER_PASS', 'PLANE_AGE', 'SNOW', 'AWND']
-
-# make dropdown widget and selection for numeric features
-dropdown_numeric_variable = alt.binding_select(options=dropdown_options, name='Y-axis feature')
-selection = alt.selection_single(
-    fields=['variable'],
-    bind=dropdown_numeric_variable)
-
-# make interactive viz
-drop_down_chart = alt.Chart(melt_flight_predict, width = 1000, height = 400
-                               ).mark_circle(opacity=0.4).encode(
-                                   y = alt.X('value:Q', title=""),
-                                   x = alt.Y('MONTH', title="Month", sort=["Jan", "Feb", "Mar", "Apr",
-                                                                     "May", "Jun", "Jul", "Aug",
-                                                                     "Sep", "Oct", "Nov", "Dec"]),
-                                   color = alt.Color('prediction', title="Model Prediction")
-                               ).add_selection(selection).transform_filter(selection)
-drop_down_chart.display()
-```
-
-*Figure 6. Interactive plot of flight month vs. selected numeric feature and the model's prediction if the flight will be delayed or not.*
-
-In the above plot, we can explore the flight month  vs. the different numeric features and the model's prediction if the flight will be delayed or not.  
+In @fig-interactive, we can explore the flight month  vs. the different numeric features and the model's prediction if the flight will be delayed or not.  
 
 **Number of concurrent flights from the same departure block, number of flight attendants per passenger, number of ground service employees per passenger, plane age (years), maximum wind speed on departure day (miles/hr)** do not seem to be associated with the model's prediction.  
 
