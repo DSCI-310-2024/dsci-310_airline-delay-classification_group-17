@@ -11,24 +11,27 @@ The significance of our research extends beyond the realm of academia. By unrave
 
 
 ## How to run the data analysis
-We are using a virtual environment to make our computational environment reproducible.
+We are now using a Docker container to make our computational environment reproducible.
 
-To replicate our analysis:
+To replicate our analysis using Docker:
 
 1. Clone this GitHub repository to your local machine:
     - Click the green `<> Code` button and copy the url.
     - Navigate to where you'd like the cloned repository to reside in your local machine via the terminal.
     - Run the command `git clone <url>` in the terminal.
-2. Create an environment from the environment file:
-    - Navigate into the cloned (local) repository by running the command `cd dsci-310_airline-delay-classification_group-17`.
-    - Run the command `conda env create --file environment.yml` in the terminal.
-    - Activate the environment by running the command `conda activate airline_project_env` in the terminal.
-3. Open JupterLab by running the command `jupyter lab` in the terminal.
-4. In the JupyterLab web application, navigate to the `reports` folder, open the file `airline-delay-classification-report.ipynb`.
-5. Change the kernel in the JupyerLab web application:
+2. Navigate into the cloned (local) repository by running the command `cd dsci-310_airline-delay-classification_group-17`.
+3. Build the Docker container by running the following command: 
+     `docker build -t airline-project`
+4. Run the Docker container using the following command 
+    `docker run -p 8888:8888 airline-project`
+5. Access JupyterLab by opening a web browser and navigating to `http://localhost:8888` or by running the following command - `jupyter lab`.
+6. In JupyterLab, navigate to the `reports` folder and open the file `airline-delay-classification-report.ipynb`.
+7. Ensure that you select the appropriate kernel:
     - Under the `Kernel` tab, click on `Change Kernel...`.
-    - Select the `Python [conda env:airline_project_env]` option in the dropdown that pops up.
-6. Run the report from top to bottom in the JupyterLab web application.
+    - Select the `Python [conda env:airline_project_env]` option in the dropdown.
+8. Run the report from top to bottom in JupyterLab web application.
+
+
 
 
 ## Dependencies
