@@ -26,7 +26,10 @@ def main():
 	
 	test_score
 	
-	prediction.to_csv("../results/03_knn-test-predict.csv")
+	prediction_df = pd.DataFrame(predictions)
+	prediction_df = prediction_df.rename(columns={prediction_df.columns[0]:'prediction'})
+
+	prediction_df.to_csv("../results/03_knn-test-predict.csv")
 
 if __name__ == "__main__":
     main()
