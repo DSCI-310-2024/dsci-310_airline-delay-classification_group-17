@@ -11,7 +11,7 @@ def main():
 
 	flight_test = pd.read_csv("../data/processed/02_flight-test.csv").reset_index()
 
-	flight_test_predict = pd.concat([flight_test, prediction_df], axis=1)
+	flight_test_predict = pd.concat([flight_test, predictions], axis=1)
 
 	flight_test_predict["MONTH"] = flight_test_predict["MONTH"].replace({1:"Jan", 2:"Feb", 3:"Mar", 4:"Apr", 5:"May", 6:"Jun", 7:"Jul", 8:"Aug", 9:"Sep", 10:"Oct", 11:"Nov", 12:"Dec"})
 
@@ -34,7 +34,7 @@ def main():
 	                               )
 	
 	
-	month_vs_real = alt.Chart(flight_test_predict, width = 300, height = 200, title = "Month and Actual Flight Delay"
+		month_vs_real = alt.Chart(flight_test_predict, width = 300, height = 200, title = "Month and Actual Flight Delay"
 	                               ).mark_bar().encode(
 	                                   x = alt.X("MONTH", title = "Month", axis=alt.Axis(labelAngle=0),
 	                                             sort=["Jan", "Feb", "Mar", "Apr","May", "Jun", "Jul", "Aug","Sep", "Oct", "Nov", "Dec"]),
@@ -116,7 +116,7 @@ def main():
 		dropdown_options = ['CONCURRENT_FLIGHTS', 'FLT_ATTENDANTS_PER_PASS', 'GROUND_SERV_PER_PASS', 'PLANE_AGE', 'SNOW', 'AWND']
 	
 		dropdown_numeric_variable = alt.binding_select(options=dropdown_options, name='Y-axis feature')
-		selection = alt.selection_single(
+		selection = alt.selection_point(
 		    fields=['variable'],
 		    bind=dropdown_numeric_variable)
 	
@@ -128,7 +128,7 @@ def main():
 		                                                                     "May", "Jun", "Jul", "Aug",
 		                                                                     "Sep", "Oct", "Nov", "Dec"]),
 		                                   color = alt.Color('prediction', title="Model Prediction")
-		                               ).add_selection(selection).transform_filter(selection)
+		                               ).add_params(selection).transform_filter(selection)
 	
 	
 	

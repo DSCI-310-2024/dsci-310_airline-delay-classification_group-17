@@ -18,59 +18,75 @@ def make_histogram(data, column: str, x_title: str, w=250, h=150):
                   )
     return numeric_plot
 
-# make frequency plots for the categorical columns
-def make_frequency_plot(data, column: str, x_title: str):
-    """ Using the data, column of interest, title, and proportion, returns a frequency plot"""
-    frequency_plot = alt.Chart(data, width=280, height=200
-                     ).mark_bar(size=13
-                     ).encode(
-                         x=alt.X(column, title=x_title),
-                         y=alt.Y("count()", title="Number of Flights"),
-                         tooltip=alt.Tooltip("count()")
-                         )
-    return frequency_plot
-    
 # main
 def main():
     """ Loads the train and test datasets, performs the EDA, and returns the visualizations"""
     # read data
-    train_data = read('../data/processed/01_flight-train.csv')
+    train_data = read('../data/processed/02_flight-train.csv')
 
     # data table preview
     train_data_preview_path = "../results/eda_01_tbl_training-data-preview.csv"
     train_data.head().to_csv(train_data_preview_path, index=False)
     print(f"Preview of Train Dataset saved at: {train_data_preview_path}")
 
-    # data info
-    print("Data Info:")
-    print(train_data.info())
-    print("\n")
-
     # histograms for numeric columns
-    print("Histograms of Numeric Columns:")
+    ## make a list of the numeric columns in the dataset
     numeric_columns = ['CONCURRENT_FLIGHTS', 'FLT_ATTENDANTS_PER_PASS',
-                    'GROUND_SERV_PER_PASS', 'PLANE_AGE', 'SNOW', 'AWND']
-    histogram_titles = ["Number of Concurrent Flights From the Same Departure Block", "Number of Flight Attendents per Passenger",
-                    "Number of Ground Service Employees per Passenger", "Plane Age (years)", "Snowfall on Departure Day (inches)",
-                    "Maximum wind speed on departure day (miles/hr)"]
+                        'GROUND_SERV_PER_PASS', 'PLANE_AGE', 'SNOW', 'AWND']
+
+    ## list of titles for each histogram
+    histogram_titles = ["Number of Concurrent Flights From the Same Departure Block", "Number of Flight Attendents per Passenger", 
+                        "Number of Ground Service Employees per Passenger", "Plane Age (years)", "Snowfall on Departure Day (inches)",
+                        "Maximum wind speed on departure day (miles/hr)"]
+
+    ## make histograms for each numeric column
+    numeric_plots = [] # accumulates the numeric plots made so far
+    for x in range(len(numeric_columns)):
+        numeric_plots.append(make_histogram(train_data, numeric_columns[x-1], histogram_titles[x-1]))
     
-    for column, title in zip(numeric_columns, histogram_titles):
-        histogram = make_histogram(train_data, column, title)
-        histogram.save(f"../results/eda_02_fig_numeric-columns-histograms_{column}.png")  # Save histogram as an image
-        print(f"Histogram for {column} saved at: ../results/eda_02_fig_numeric-columns-histograms_{column}.png")
-    print("\n")
+    ## save histograms as one figure
+    alt.data_transformers.disable_max_rows()
+    numeric_histogram = ((numeric_plots[0] | numeric_plots[1]
+    ) & (numeric_plots[2] | numeric_plots[3]
+        ) & (numeric_plots[4] | numeric_plots[5]))
+    numeric_histogram.save('../results/eda_02_fig_numeric-columns-histograms.png')
 
     # frequency plots for categorical columns
-    print("Frequency Plots of Categorical Columns:")
-    frequency_plots = []
-    categorical_columns = ['MONTH', 'DAY_OF_WEEK', 'CARRIER_NAME', 'DEP_DEL15']
-    categorical_titles = ["Month", "Day of the Week", "Air Carrier", "Flight Departure Delay (0 = no, 1 = yes)"]
-    
-    for column, title in zip(categorical_columns, categorical_titles):
-        frequency_plot = make_frequency_plot(train_data, column, title)
-        frequency_plot.save(f"../results/eda_03_fig_categorical-columns-plots_{column}.png")  # Save frequency plot as an image
-        print(f"Frequency plot for {column} saved at: ../results/eda_03_fig_categorical-columns-plots_{column}.png")
-    print("\n")
+    month_plot = alt.Chart(train_data, width = 280, height = 200
+                        ).mark_bar(size=13
+                        ).encode(
+                            x = alt.X("MONTH", title = "Month"),
+                            y = alt.Y("count()", title = "Number of Flights"),
+                            tooltip = alt.Tooltip("count()")
+                            )
+
+    day_of_week_plot  = alt.Chart(train_data, width = 280, height = 200
+                        ).mark_bar(size = 13
+                        ).encode(
+                            x = alt.X("DAY_OF_WEEK", title = "Day of the Week"),
+                            y = alt.Y("count()", title = "Number of Flights"),
+                            tooltip = alt.Tooltip("count()")
+                            )
+
+    carrier_plot  = alt.Chart(train_data, width = 400, height = 200
+                        ).mark_bar(
+                        ).encode(
+                            x = alt.X("CARRIER_NAME", title = "Air Carrier"),
+                            y = alt.Y("count()", title = "Number of Flights"),
+                            tooltip = alt.Tooltip("count()")
+                            )
+
+    delay_plot  = alt.Chart(train_data, width = 100, height = 200
+                        ).mark_bar(size = 20
+                        ).encode(
+                            x = alt.X("DEP_DEL15", title = "Flight Departure Delay (0 = no, 1 = yes)"),
+                            y = alt.Y("count()", title = "Number of Flights"),
+                            tooltip = alt.Tooltip("count()")
+                            )
+
+    ## save frequency charts as one figure
+    freq_charts = ((month_plot | day_of_week_plot) & (carrier_plot | delay_plot))
+    freq_charts.save('../results/eda_03_fig_categorical-columns-plots.png')
 
 if __name__ == "__main__":
     main()

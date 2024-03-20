@@ -21,8 +21,11 @@ def main():
     # filter the columns of interest
     filtered_data = filter_columns(raw_data, list_of_features_and_target)
 
+    # sample 20,000 observations from the filtered data set
+    filtered_data_sample = filtered_data.sample(n=20000, random_state=12)
+
     # save the filtered data set
-    filtered_data.to_csv("../data/processed/01_filtered-data.csv", index=False)
+    filtered_data_sample.to_csv("../data/processed/01_filtered-data.csv", index=False)
 
 if __name__ == "__main__":
     main()

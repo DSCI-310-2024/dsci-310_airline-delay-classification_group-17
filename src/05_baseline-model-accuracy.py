@@ -11,8 +11,8 @@ def read(file_name):
 	return pd.read_csv(file_name)
 
 def main():
-	x_train = read("..data/processed/03_X-train.csv")
-	y_train = read("..data/processed/03_y-train.csv")
+	X_train = read("../data/processed/03_X-train.csv")
+	y_train = read("../data/processed/03_y-train.csv")
 
 	scoring = {'accuracy': 'accuracy',
            'precision': make_scorer(precision_score, pos_label=1),
