@@ -9,7 +9,8 @@ format:
 bibliography: references.bib
 execute:
     echo: false
-editor: source ####not sure
+    warning: false
+editor: source
 ---
 
 
@@ -23,24 +24,24 @@ The significance of our research extends beyond the realm of academia. By unrave
 
 ## Introduction
 
-The airline industry plays a vital role in global transportation, yet it faces challenges such as flight delays which can inconvenience passengers and disrupt travel plans. In this project, we aim to conduct a comprehensive analysis of airline delays using the 2019 dataset sourced from [Kaggle](https://www.kaggle.com/datasets/threnjen/2019-airline-delays-and-cancellations). This dataset provides detailed information about flight delays, reasons for delays, and other relevant factors across various airlines operating in the United States of America in 2019. Our analysis will focus on identifying patterns, trends, and factors contributing to delays and cancellations, with the ultimate goal of gaining and providing insights to help airlines optimize their operations, improve punctuality, and enhance customer satisfaction. Through this project, we aim to contribute valuable insights to the aviation industry and provide actionable recommendations for mitigating delays and cancellations, ultimately improving the travel experience for passengers.
+The airline industry plays a vital role in global transportation, yet it faces challenges such as flight delays which can inconvenience passengers and disrupt travel plans. In this project, we aim to conduct a comprehensive analysis of airline delays using the 2019 dataset sourced from [Kaggle](https://www.kaggle.com/datasets/threnjen/2019-airline-delays-and-cancellations) [@Wadkins_2022]. This dataset provides detailed information about flight delays, reasons for delays, and other relevant factors across various airlines operating in the United States of America in 2019. Our analysis will focus on identifying patterns, trends, and factors contributing to delays and cancellations, with the ultimate goal of gaining and providing insights to help airlines optimize their operations, improve punctuality, and enhance customer satisfaction. Through this project, we aim to contribute valuable insights to the aviation industry and provide actionable recommendations for mitigating delays and cancellations, ultimately improving the travel experience for passengers.
 
 ## Methods and Results
 
 To start, we imported the required libraries for our analysis, set the random state to generate reproducible results, and read in the data. Then we only kept the features of interest and the target column in the data.
 
-Features:
-- Month (`MONTH`)
-- Day of Week (`DAY_OF_WEEK`)
-- Number of concurrent flights leaving from the airport in the same departure block (`CONCURRENT_FLIGHTS`)
-- Carrier (`CARRIER_NAME`)
-- Number of flight attendants per passenger (`FLT_ATTENDANTS_PER_PASS`)
-- Number of ground service employees (service desk) per passenger (`GROUND_SERV_PER_PASS`)
-- Age of departing aircraft (`PLANE_AGE`)
-- Inches of snowfall on departure day (`SNOW`)
-- Max wind speed on departure day (`AWND`)
+Features:  
+- Month (`MONTH`)  
+- Day of Week (`DAY_OF_WEEK`)  
+- Number of concurrent flights leaving from the airport in the same departure block (`CONCURRENT_FLIGHTS`)  
+- Carrier (`CARRIER_NAME`)  
+- Number of flight attendants per passenger (`FLT_ATTENDANTS_PER_PASS`)  
+- Number of ground service employees (service desk) per passenger (`GROUND_SERV_PER_PASS`)  
+- Age of departing aircraft (`PLANE_AGE`)  
+- Inches of snowfall on departure day (`SNOW`)  
+- Max wind speed on departure day (`AWND`)  
 
-Target:
+Target:  
 - If the departing flight is delayed over 15 minutes or not (`DEP_DEL15`, `0` = no and `1` = yes)
 
 Then, we split the data into training and testing sets.
@@ -50,21 +51,26 @@ Then, we split the data into training and testing sets.
 Let's preview the testing set and have a look at some information about the data.
 
 ```{python}
-###flight_train.head()++++
+#| label: tbl-training-data-preview
+#| tbl-cap: Preview of the training flight data.
+import pandas as pd
+from IPython.display import Markdown
+from tabulate import tabulate
+preview_training_data = pd.read_csv("../results/eda_01_tbl_training-data-preview.csv")
+Markdown(preview_training_data.to_markdown(index = False))
 ```
 
-*Table 1. Preview of the training flight data.* +++++++++++++
-
 ```{python}
-###flight_train.info()++++
+training_data = pd.read_csv("../data/processed/02_flight-train.csv")
+training_data.info()
 ```
 
 We can see that there are no null values in any of the columns. To gain more insight into the training data, the following data visualizations were made to see the distribution of the different feature variables and target variable.
 
-![Distribution of numeric columns in the training dataset.](../results/eda_02_fig_categorical-columns-plots.png){#fig-eda-categorical width=90%}
+![Distribution of numeric columns in the training dataset.](../results/eda_02_fig_numeric-columns-histograms.png){#fig-eda-numeric width=90%}
 
 
-![Distribution of categorical columns in the training dataset.](../results/eda_02_fig_categorical-columns-plots.png){#fig-eda-categorical width=90%}
+![Distribution of categorical columns in the training dataset.](../results/eda_03_fig_categorical-columns-plots.png){#fig-eda-categorical width=90%}
 
 ### Preprocessing the Data
 
@@ -77,36 +83,126 @@ To allow our categorical features to be used as predictors, we preprocessed them
 No imputation is needed since there are no missing values in the dataset.
 
 ### Baseline Model
+```{python}
+import pandas as pd
+import numpy as np
+import sklearn
+from sklearn.dummy import DummyClassifier
+from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.model_selection import cross_validate
+
+X_train = pd.read_csv("../data/processed/03_X-train.csv")
+y_train = pd.read_csv("../data/processed/03_y-train.csv")
+
+scoring = {'accuracy': 'accuracy',
+        'precision': make_scorer(precision_score, pos_label=1),
+        'recall': make_scorer(recall_score, pos_label=1),
+        'f1': make_scorer(f1_score, pos_label=1) }
+
+dummy_classifier = DummyClassifier(strategy = "stratified", random_state = 12)
+
+dummy_scores = pd.DataFrame(
+   		cross_validate(
+       		dummy_classifier, X_train, y_train, cv = 5, return_train_score = True, scoring = scoring
+   		)
+)
+
+dummy_mean = dummy_scores.mean()
+	
+baseline_model = dummy_classifier
+
+dummy_validation_score = round(dummy_mean['test_accuracy'] * 100, 2)
+```
 
 To create a baseline model to compare the final KNN model to, we made a DummyClassifier that will randomly predict if the flight departure will be delayed or not, at a frequency respective to its distribution in the training data.
 
-We found that the DummyClassifier had a validation score of +++++++.
+We found that the DummyClassifier had a validation score of `{python} dummy_validation_score`%.
 
 ### KNN Classifier
 
 #### Parameter Tuning
+```{python}
+import pandas as pd
+import numpy as np
+import sklearn
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import cross_validate
+	
+y_train = pd.read_csv("../data/processed/03_y-train.csv")
+X_train = pd.read_csv("../data/processed/03_X-train.csv")
+
+
+results_dict = {
+   	"n_neighbors": [],
+   	"mean_train_score": [],
+   	"mean_cv_score": []}
+
+for n in range(10,41,2):
+	knn_model = KNeighborsClassifier(n_neighbors=n)
+	cv_scores = cross_validate(knn_model, X_train, y_train.values.ravel(), cv=5, return_train_score=True)
+	results_dict["n_neighbors"].append(n)
+	results_dict["mean_train_score"].append(cv_scores["train_score"].mean())
+	results_dict["mean_cv_score"].append(cv_scores["test_score"].mean())
+
+results_df = pd.DataFrame(results_dict)
+
+results_df.sort_values(by=["mean_cv_score"], ascending=False).head(1)
+
+best_k = int(results_df.loc[results_df['mean_cv_score'].idxmax()]['n_neighbors'])
+	
+knn_best = KNeighborsClassifier(n_neighbors=best_k)
+
+knn_validation_score = round((results_df.loc[results_df['mean_cv_score'].idxmax()])[2] * 100, 2)
+
+dummy_validation_score = round(dummy_mean['test_accuracy'] * 100, 2)
+```
 
 To find the optimal value of k that maximizes the accuracy of the model, we used 5-fold cross-validation for values of k from 10 to 40, in increments of 2.
 
-We found that +++++++ is the best k value from 10 to 40 in increments of 2 and yields a validation score of +++++++ which is higher compared to the validation score of the DummyClassifier (+++++++).
+We found that `{python} best_k` is the best k value from 10 to 40 in increments of 2 and yields a validation score of `{python} knn_validation_score`% which is higher compared to the validation score of the DummyClassifier (`{python} dummy_validation_score`%).
 
 #### Training and Testing
 
-We then made a new model using the best k value (++++), retrained the classifier, and got predictions on 
-the test data. This model yielded an accuracy score of +++++ on the test set.
+```{python}
+import pandas as pd
+import numpy as np
+import sklearn
+import pickle
+from sklearn.metrics import make_scorer
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.pipeline import Pipeline, make_pipeline
+from sklearn.neighbors import KNeighborsClassifier
+
+X_train = pd.read_csv("../data/processed/03_X-train.csv")
+y_train = pd.read_csv("../data/processed/03_y-train.csv")
+X_test = pd.read_csv("../data/processed/03_X-test.csv")
+y_test = pd.read_csv("../data/processed/03_y-test.csv")
+	
+best_model = pickle.load(open('../results/02_best-knn-model.pickle', 'rb'))	
+
+best_model.fit(X_train, y_train.values.ravel())
+
+prediction = best_model.predict(X_test)
+	
+test_score = round(best_model.score(X_test, y_test) * 100, 2)
+```
+
+We then made a new model using the best k value (`{python} best_k`), retrained the classifier, and got predictions on 
+the test data. This model yielded an accuracy score of (`{python} test_score`%) on the test set.
 
 #### Exploring the Model
 
 Let’s explore the model with more visualizations.
 
 ```{python}
-# preview the testing dataframe with the model predictions
-# flight_test_predict.head()
+#| label: tbl-test-data-w-preds
+#| tbl-cap: Preview of the testing data with the model predictions.
+test_and_pred_data = pd.read_csv("../results/03_knn-test-predict.csv")
+test_and_pred_data_preview = test_and_pred_data.head(5)
+Markdown(test_and_pred_data_preview.to_markdown(index = False))
 ```
 
-*Table 2. Preview of the testing data with the model predictions* ++++++++++++++
-
-![Distribution of flights over the year in each month with the model's prediction of flight delay and actual flight delay.](../results/04_fig_month-vs-prediction-actual.png){#fig-month width=90%}
+![Distribution of flights over the year in each month with the model's prediction of flight delay and actual flight delay.](../results/04_fig_month-vs-prediction-actual.png){#fig-month width=100%}
 
 As seen in @fig-month, January, April, October, and November were each predicted to have one delayed flight, which does not reflect the distribution of actual delayed flights over the year in the testing data. Flights were delayed relatively steady over the year (about 60 flights per month), with a peak in June that had 92 flights delayed in the testing data.
 
@@ -118,11 +214,7 @@ In @fig-day, we can see that the days in the long weekend (Sunday, Monday, Frida
 
 Delta Airlines Inc., Midwest Airline Inc., Southwest Airlines Co., and Spirit Air Lines were each predicted to have one delayed flight, as seen in @fig-carrier. Once again, this doesn't quite capture the actual delay patterns in the testing data. In the testing data, each airline had *some* delayed flights and the following airlines had the most delayed flights: Southwest Airlines Co., American Airlines Inc., Delta Air Lines Inc., United Air Lines Inc., and SkyWest Airlines Inc.
 
-```{python}
-# interactive viz for numeric features vs. month
-```
-
-![Interactive plot of flight month vs. selected numeric feature and the model's prediction if the flight will be delayed or not.](../results/07_fig_numeric-feats-interactive-viz.png){#fig-interactive width=90%}
+![Interactive plot of flight month vs. selected numeric feature and the model's prediction if the flight will be delayed or not.](../results/07_fig_numeric-feats-interactive-viz.html){#fig-interactive height=550 width=800}
 
 In @fig-interactive, we can explore the flight month  vs. the different numeric features and the model's prediction if the flight will be delayed or not.  
 
