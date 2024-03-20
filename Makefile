@@ -12,7 +12,12 @@
 # make clean
 # make all
 
-all: 
+all: dats \
+eda \
+models \
+results/03_knn-test-predict.csv \
+results-plots \
+reports/airline-delay-classification-report.html
 
 # process the data
 dats : data/processed/01_filtered-data.csv \
@@ -51,9 +56,8 @@ results/eda_03_fig_categorical-columns-plots.png : src/03_eda.py data/processed/
 	python src/03_eda.py
 
 # create the models
-models: results/01_baseline-model.pickle \
-results/02_best-knn-model.pickle
-	python 
+models: results/01_baseline-model.pickle results/02_best-knn-model.pickle
+
 results/01_baseline-model.pickle : src/05_baseline-model-accuracy.py \
 data/processed/03_X-train.csv data/processed/03_y-train.csv
 	python src/05_baseline-model-accuracy.py
