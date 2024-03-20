@@ -22,10 +22,10 @@ def make_histogram(data, column: str, x_title: str, w=250, h=150):
 def main():
     """ Loads the train and test datasets, performs the EDA, and returns the visualizations"""
     # read data
-    train_data = read('../data/processed/02_flight-train.csv')
+    train_data = read('data/processed/02_flight-train.csv')
 
     # data table preview
-    train_data_preview_path = "../results/eda_01_tbl_training-data-preview.csv"
+    train_data_preview_path = "results/eda_01_tbl_training-data-preview.csv"
     train_data.head().to_csv(train_data_preview_path, index=False)
     print(f"Preview of Train Dataset saved at: {train_data_preview_path}")
 
@@ -49,7 +49,7 @@ def main():
     numeric_histogram = ((numeric_plots[0] | numeric_plots[1]
     ) & (numeric_plots[2] | numeric_plots[3]
         ) & (numeric_plots[4] | numeric_plots[5]))
-    numeric_histogram.save('../results/eda_02_fig_numeric-columns-histograms.png')
+    numeric_histogram.save('results/eda_02_fig_numeric-columns-histograms.png')
 
     # frequency plots for categorical columns
     month_plot = alt.Chart(train_data, width = 280, height = 200
@@ -86,7 +86,7 @@ def main():
 
     ## save frequency charts as one figure
     freq_charts = ((month_plot | day_of_week_plot) & (carrier_plot | delay_plot))
-    freq_charts.save('../results/eda_03_fig_categorical-columns-plots.png')
+    freq_charts.save('results/eda_03_fig_categorical-columns-plots.png')
 
 if __name__ == "__main__":
     main()

@@ -7,9 +7,9 @@ from sklearn.metrics import  confusion_matrix, ConfusionMatrixDisplay, classific
 
 def main():
 
-	predictions = pd.read_csv("../results/03_knn-test-predict.csv")
+	predictions = pd.read_csv("results/03_knn-test-predict.csv")
 
-	flight_test = pd.read_csv("../data/processed/02_flight-test.csv").reset_index()
+	flight_test = pd.read_csv("data/processed/02_flight-test.csv").reset_index()
 
 	flight_test_predict = pd.concat([flight_test, predictions], axis=1)
 
@@ -46,7 +46,7 @@ def main():
 	
 		plt = (month_vs_prediction | month_vs_real).resolve_scale(color='independent')
 	
-		plt.save("../results/04_fig_month-vs-prediction-actual.png")
+		plt.save("results/04_fig_month-vs-prediction-actual.png")
 	
 	
 	
@@ -75,7 +75,7 @@ def main():
 	
 		plt2 = (day_vs_prediction | day_vs_real).resolve_scale(color='independent')
 	
-		plt2.save("../results/05_fig_day-vs-prediction-actual.png")
+		plt2.save("results/05_fig_day-vs-prediction-actual.png")
 	
 	
 	
@@ -103,7 +103,7 @@ def main():
 	
 		plt3 = (carrier_vs_prediction | carrier_vs_real).resolve_scale(color='independent')
 	
-		plt3.save("../results/06_fig_carrier-vs-prediction-actual.png")
+		plt3.save("results/06_fig_carrier-vs-prediction-actual.png")
 	
 	
 	
@@ -132,7 +132,7 @@ def main():
 	
 	
 	
-		drop_down_chart.save("../results/07_fig_numeric-feats-interactive-viz.html")
+		drop_down_chart.save("results/07_fig_numeric-feats-interactive-viz.html")
 	
 	
 
