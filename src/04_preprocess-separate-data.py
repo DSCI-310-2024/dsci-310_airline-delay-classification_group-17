@@ -10,16 +10,16 @@ def read(file_name):
 # main
 def preprocess(train_file, test_file):
     # read the data
-    flight_train = read("../data/processed/02_flight-train.csv")
-    flight_test = read("../data/processed/02_flight-test.csv")
+    flight_train = read("data/processed/02_flight-train.csv")
+    flight_test = read("data/processed/02_flight-test.csv")
     
     # replace sunday's value
     flight_train.loc[flight_train['DAY_OF_WEEK'] == 1, 'DAY_OF_WEEK'] = 8
     flight_test.loc[flight_test['DAY_OF_WEEK'] == 1, 'DAY_OF_WEEK'] = 8
     
     # save the splits after 
-    flight_train.to_csv("../data/processed/02_flight-train.csv", index=False)
-    flight_test.to_csv("../data/processed/02_flight-test.csv", index=False)
+    flight_train.to_csv("data/processed/02_flight-train.csv", index=False)
+    flight_test.to_csv("data/processed/02_flight-test.csv", index=False)
 
     # separate feature vectors
     X_train = flight_train.drop(columns=["DEP_DEL15"])
@@ -46,10 +46,10 @@ def preprocess(train_file, test_file):
     X_test = preprocessor.transform(X_test)
 
     # save data
-    pd.DataFrame(X_train).to_csv("../data/processed/03_X-train.csv", index=False)
-    pd.DataFrame(y_train).to_csv("../data/processed/03_y-train.csv", index=False)
-    pd.DataFrame(X_test).to_csv("../data/processed/03_X-test.csv", index=False)
-    pd.DataFrame(y_test).to_csv("../data/processed/03_y-test.csv", index=False)
+    pd.DataFrame(X_train).to_csv("data/processed/03_X-train.csv", index=False)
+    pd.DataFrame(y_train).to_csv("data/processed/03_y-train.csv", index=False)
+    pd.DataFrame(X_test).to_csv("data/processed/03_X-test.csv", index=False)
+    pd.DataFrame(y_test).to_csv("data/processed/03_y-test.csv", index=False)
 
 if __name__ == "__main__":
-    preprocess("../data/processed/02_flight-train.csv", "../data/processed/02_flight-test.csv")
+    preprocess("data/processed/02_flight-train.csv", "data/processed/02_flight-test.csv")

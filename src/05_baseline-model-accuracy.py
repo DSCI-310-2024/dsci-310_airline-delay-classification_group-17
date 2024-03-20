@@ -11,8 +11,8 @@ def read(file_name):
 	return pd.read_csv(file_name)
 
 def main():
-	X_train = read("../data/processed/03_X-train.csv")
-	y_train = read("../data/processed/03_y-train.csv")
+	X_train = read("data/processed/03_X-train.csv")
+	y_train = read("data/processed/03_y-train.csv")
 
 	scoring = {'accuracy': 'accuracy',
            'precision': make_scorer(precision_score, pos_label=1),
@@ -30,7 +30,7 @@ def main():
 	dummy_mean = dummy_scores.mean()
 	
 	baseline_model = dummy_classifier
-	f = open('../results/01_baseline-model.pickle', 'wb')
+	f = open('results/01_baseline-model.pickle', 'wb')
 	pickle.dump(baseline_model, f)
 	
 if __name__ == "__main__":

@@ -7,8 +7,8 @@ import pickle
 
 def main():
 	
-	y_train = pd.read_csv("../data/processed/03_y-train.csv")
-	X_train = pd.read_csv("../data/processed/03_X-train.csv")
+	y_train = pd.read_csv("data/processed/03_y-train.csv")
+	X_train = pd.read_csv("data/processed/03_X-train.csv")
 
 
 	results_dict = {
@@ -30,7 +30,7 @@ def main():
 	best_k = int(results_df.loc[results_df['mean_cv_score'].idxmax()]['n_neighbors'])
 	
 	knn_best = KNeighborsClassifier(n_neighbors=best_k)
-	f = open('../results/02_best-knn-model.pickle', 'wb')
+	f = open('results/02_best-knn-model.pickle', 'wb')
 	pickle.dump(knn_best, f)
 
 
