@@ -24,12 +24,8 @@ To replicate our analysis using Docker:
      `docker build -t airline-project`
 4. Run the Docker container using the following command 
     `docker run -p 8888:8888 airline-project`
-5. Access JupyterLab by opening a web browser and navigating to `http://localhost:8888` or by running the following command - `jupyter lab`.
-6. In JupyterLab, navigate to the `reports` folder and open the file `airline-delay-classification-report.ipynb`.
-7. Ensure that you select the appropriate kernel:
-    - Under the `Kernel` tab, click on `Change Kernel...`.
-    - Select the `Python [conda env:airline_project_env]` option in the dropdown.
-8. Run the report from top to bottom in JupyterLab web application.
+5. To remove the results of the analysis and remake them, run the commands `make clean-all` and `make all` in the terminal.
+6. View the analysis report `airline-delay-classification-report.html`.
 
 
 
