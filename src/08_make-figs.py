@@ -132,7 +132,7 @@ def main():
 	
 	
 	
-		drop_down_chart.save("../results/07_fig_numeric-feats-interactive-viz.png")
+		drop_down_chart.save("../results/07_fig_numeric-feats-interactive-viz.html")
 	
 	
 
