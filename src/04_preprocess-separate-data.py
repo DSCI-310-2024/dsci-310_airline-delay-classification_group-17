@@ -10,8 +10,8 @@ def read(file_name):
 # main
 def preprocess(train_file, test_file):
     # read the data
-    flight_train = read(train_file)
-    flight_test = read(test_file)
+    flight_train = read("../data/processed/02_flight-train.csv")
+    flight_test = read("../data/processed/02_flight-test.csv")
     
     # replace sunday's value
     flight_train.loc[flight_train['DAY_OF_WEEK'] == 1, 'DAY_OF_WEEK'] = 8
@@ -33,7 +33,7 @@ def preprocess(train_file, test_file):
     numeric_transformer = StandardScaler()
 
     categorical_features = ['CARRIER_NAME']
-    categorical_transformer = OneHotEncoder(sparse=False, dtype='int')
+    categorical_transformer = OneHotEncoder(sparse_output=False, dtype='int')
 
     preprocessor = make_column_transformer(
         (numeric_transformer, numeric_features),
@@ -52,4 +52,4 @@ def preprocess(train_file, test_file):
     pd.DataFrame(y_test).to_csv("../data/processed/03_y-test.csv", index=False)
 
 if __name__ == "__main__":
-    preprocess_data("../data/processed/02_flight-train.csv", "../data/processed/02_flight-test.csv")
+    preprocess("../data/processed/02_flight-train.csv", "../data/processed/02_flight-test.csv")

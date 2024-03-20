@@ -7,21 +7,21 @@ import pickle
 
 def main():
 	
-	y_train = pd.read_csv("../data/03_y-train.csv")
-	X_train = pd.read_csv("../data/03_X-train.csv")
+	y_train = pd.read_csv("../data/processed/03_y-train.csv")
+	X_train = pd.read_csv("../data/processed/03_X-train.csv")
 
 
 	results_dict = {
-    		"n_neighbors": [],
-    		"mean_train_score": [],
-    		"mean_cv_score": []}
+    	"n_neighbors": [],
+    	"mean_train_score": [],
+    	"mean_cv_score": []}
 
-	for n in range(10,41, 2):
-    		knn_model = KNeighborsClassifier(n_neighbors=n)
-    		cv_scores = cross_validate(knn_model, X_train, y_train, cv=5, return_train_score=True)
-    		results_dict["n_neighbors"].append(n)
-    		results_dict["mean_train_score"].append(cv_scores["train_score"].mean())
-    		results_dict["mean_cv_score"].append(cv_scores["test_score"].mean())
+	for n in range(10,41,2):
+		knn_model = KNeighborsClassifier(n_neighbors=n)
+		cv_scores = cross_validate(knn_model, X_train, y_train.values.ravel(), cv=5, return_train_score=True)
+		results_dict["n_neighbors"].append(n)
+		results_dict["mean_train_score"].append(cv_scores["train_score"].mean())
+		results_dict["mean_cv_score"].append(cv_scores["test_score"].mean())
 
 	results_df = pd.DataFrame(results_dict)
 
