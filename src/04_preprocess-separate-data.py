@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.compose import make_column_transformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.pipeline import make_pipeline
+from replace_value import replace_value
 
 # read data from csv file
 def read(file_name):
@@ -14,8 +15,8 @@ def preprocess(train_file, test_file):
     flight_test = read("data/processed/02_flight-test.csv")
     
     # replace sunday's value
-    flight_train.loc[flight_train['DAY_OF_WEEK'] == 1, 'DAY_OF_WEEK'] = 8
-    flight_test.loc[flight_test['DAY_OF_WEEK'] == 1, 'DAY_OF_WEEK'] = 8
+    replace_value(flight_train, 'DAY_OF_WEEK', 1, 8)
+    replace_value(flight_test, 'DAY_OF_WEEK', 1, 8)
     
     # save the splits after 
     flight_train.to_csv("data/processed/02_flight-train.csv", index=False)
