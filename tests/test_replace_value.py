@@ -48,13 +48,13 @@ def test_replace_value_type_error():
         replace_value(candy_df, 'candy', 'candy corn', ['', ''])
 
 # Test for correct error handling if the specifed column is not in the inputted panda DataFrame
-def test_replace_value_type_error():
+def test_replace_value_exception1():
     with pytest.raises(Exception):
         replace_value(candy_df, 'not a column', 'candy corn', 'dirt')
         replace_value(empty_df, 'candy', 'candy corn', 'dirt')
 
 # Test for correct error handling if the old_value is not in the specified column
-def test_replace_value_type_error():
+def test_replace_value_exception2():
     with pytest.raises(Exception):
         replace_value(candy_df, 'candy', 'not a candy', 'dirt')
 
