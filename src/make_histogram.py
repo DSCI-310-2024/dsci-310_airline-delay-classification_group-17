@@ -1,3 +1,6 @@
+import pandas as pd
+import altair as alt
+
 # make histograms for the numeric columns
 def make_histogram(data, column: str, x_title: str, w=250, h=150):
     """ Using the data, column of interest, title, and proportion, returns a histogram.
