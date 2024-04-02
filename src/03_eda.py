@@ -1,22 +1,11 @@
 import pandas as pd
 import altair as alt
-
+from make_histogram import make_histogram
 
 
 # read data from csv file
 def read(file_name):
     return pd.read_csv(file_name)
-
-# make histograms for the numeric columns
-def make_histogram(data, column: str, x_title: str, w=250, h=150):
-    """ Using the data, column of interest, title, and proportion, returns a histogram"""
-    numeric_plot = alt.Chart(data, width=w, height=h
-              ).mark_bar(
-              ).encode(
-                  x=alt.X(column, title=x_title, bin=alt.Bin(maxbins=30)),
-                  y=alt.Y("count()", title="Number of Flights")
-                  )
-    return numeric_plot
 
 # main
 def main():
