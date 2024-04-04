@@ -1,29 +1,35 @@
-# split data into train and test
+# data_split test
+import os
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from src.data_split import data_split
 
-import pandas as py
-import pytest
+# test data
+@pytest.fixture
+def synthetic_data():
+    return pd.DataFrame({
+        'Feature1': [1, 2, 3, 4, 5],
+        'Feature2': [6, 7, 8, 9, 10],
+        'Target': [0, 1, 0, 1, 0]
+    })
 
-# import read from 02_split_data.py
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from src.01_filter-raw-data.py import read, data_split
+# data_split creating a train and test data CSV file test
+def test_data_split(synthetic_data):
+    data_split(synthetic_data)
 
-# test data split function to confirm that it returns a train and test split data
-def test_train_test_split():
-    filtered_data = read("data/processed/01_filtered-data.csv")
+    # check if the respective train and test csv files are created
+    assert os.path.isfile("data/processed/02_flight-train.csv")
+    assert os.path.isfile("data/processed/02_flight-test.csv")
 
-    data_split()
-
-    # read the train and test sets from csv files
+    # read created files
     flight_train = pd.read_csv("data/processed/02_flight-train.csv")
     flight_test = pd.read_csv("data/processed/02_flight-test.csv")
 
-    # check if train and test sets are DataFrame objects
-    assert isinstance(flight_train, pd.DataFrame)
-    assert isinstance(flight_test, pd.DataFrame)
+    # check if data was split correctly
+    assert len(flight_train) > 0
+    assert len(flight_test) > 0
+    assert len(flight_train) + len(flight_test) == len(synthetic_data)
 
-    # check if the total number of rows in train and test sets add up to the total number of rows in the filtered data
-    assert len(flight_train) + len(flight_test) == len(filtered_data)
-
-    # check if train and test sets have the same columns as the filtered data
-    assert all(flight_train.columns == filtered_data.columns)
-    assert all(flight_test.columns == filtered_data.columns)
+    # clean up
+    os.remove("data/processed/02_flight-train.csv")
+    os.remove("data/processed/02_flight-test.csv")
