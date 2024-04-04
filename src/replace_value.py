@@ -8,9 +8,13 @@ def replace_value(dataframe, column, old_value, new_value):
     Parameters:
     ----------
     dataframe : pandas.DataFrame
+                The dataframe with the data.
     column : str
+             The column in which a value is to be changed.
     old_value : str, int, or float
+                The value that will be replaced.
     new_value : str, int, or float
+                The value that is the replacement.
 
     Returns:
     -------
