@@ -8,10 +8,15 @@ def make_histogram(data, column: str, x_title: str, w=250, h=150):
     Parameters:
     ----------
     dataframe : pandas.DataFrame
+                The dataframe with the data that will be used to make the histogram.
     column : str
+             The column of the dataframe that will be on the x-axis of the resulting histogram.
     x_title : str
-    w : int
-    h : int
+              The x-axis title of the resulting histogram.
+    w : int, optional
+        The width (in pixels) of the resulting histogram (the default is 250).
+    h : int, optional
+        The height (in pixels) of the resulting histogram (the default is 150).
 
     Returns:
     -------
