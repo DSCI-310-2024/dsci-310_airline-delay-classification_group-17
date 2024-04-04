@@ -5,8 +5,8 @@ from sklearn.model_selection import train_test_split
 def read(file_name):
     return pd.read_csv(file_name)
 
-# main function
-def main():
+# main function to split data into train and test sets
+def data_split():
     """ Read filtered data set and split it into train and test states in csv form"""
     # read csv file
     filtered_data = read("data/processed/01_filtered-data.csv")
@@ -19,4 +19,4 @@ def main():
     flight_test.to_csv("data/processed/02_flight-test.csv", index = False)
 
 if __name__ == "__main__":
-    main()
+    data_split()
