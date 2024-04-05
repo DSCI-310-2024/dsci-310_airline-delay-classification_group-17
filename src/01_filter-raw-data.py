@@ -1,4 +1,6 @@
 import pandas as pd
+import os
+import sys
 
 # function to read data from a csv file
 def read(file_name):
@@ -9,7 +11,7 @@ def filter_columns(data, columns_of_interest):
     return data[columns_of_interest]
 
 # main function
-def main():
+def read_and_filter():
     """Read and filter full_data_flightdelay.csv for columns of interest and target, and return a csv file of filtered data"""
     # define the list of features and target columns
     list_of_features_and_target = ['MONTH', 'DAY_OF_WEEK', 'DEP_DEL15', 'CONCURRENT_FLIGHTS', 'CARRIER_NAME',
@@ -28,4 +30,4 @@ def main():
     filtered_data_sample.to_csv("data/processed/01_filtered-data.csv", index=False)
 
 if __name__ == "__main__":
-    main()
+    read_and_filter()
