@@ -7,7 +7,7 @@ import pytest
 
 # path to import function into scripts
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from src.filter_raw_data import filter_columns
+from src.filter_columns import filter_columns
 
 # Ftest data fixture
 @pytest.fixture

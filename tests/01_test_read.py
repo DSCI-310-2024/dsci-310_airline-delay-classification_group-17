@@ -6,7 +6,7 @@ import pytest
 
 # path import function
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from src.filter_raw_data import read
+from src.read import read
 
 # test data
 test_cases = [

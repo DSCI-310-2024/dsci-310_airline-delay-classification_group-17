@@ -1,10 +1,11 @@
-# data_split test
+#test split_data
 import os
 import pandas as pd
-from sklearn.model_selection import train_test_split
+import pytest
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from src.data_split import data_split
 
-# test data
 @pytest.fixture
 def synthetic_data():
     return pd.DataFrame({
@@ -13,23 +14,26 @@ def synthetic_data():
         'Target': [0, 1, 0, 1, 0]
     })
 
-# data_split creating a train and test data CSV file test
-def test_data_split(synthetic_data):
-    data_split(synthetic_data)
+@pytest.mark.parametrize("train_file, test_file", [
+    ("train_data.csv", "test_data.csv"),
+    ("train.csv", "test.csv"),
+    ("train_split.csv", "test_split.csv")
+])
+def test_data_split(synthetic_data, train_file, test_file):
+    data_split(synthetic_data, train_file, test_file)
 
-    # check if the respective train and test csv files are created
-    assert os.path.isfile("data/processed/02_flight-train.csv")
-    assert os.path.isfile("data/processed/02_flight-test.csv")
+    # check if the train and test CSV files have been created
+    assert os.path.isfile(train_file)
+    assert os.path.isfile(test_file)
 
-    # read created files
-    flight_train = pd.read_csv("data/processed/02_flight-train.csv")
-    flight_test = pd.read_csv("data/processed/02_flight-test.csv")
+    # read the train and test files
+    train_df = pd.read_csv(train_file)
+    test_df = pd.read_csv(test_file)
 
-    # check if data was split correctly
-    assert len(flight_train) > 0
-    assert len(flight_test) > 0
-    assert len(flight_train) + len(flight_test) == len(synthetic_data)
+    # checks if data was split
+    assert len(train_df) > 0
+    assert len(test_df) > 0
+    assert len(train_df) + len(test_df) == len(synthetic_data)
 
-    # clean up
-    os.remove("data/processed/02_flight-train.csv")
-    os.remove("data/processed/02_flight-test.csv")
+    os.remove(train_file)
+    os.remove(test_file)
