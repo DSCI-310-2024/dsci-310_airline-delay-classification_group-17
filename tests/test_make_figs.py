@@ -3,9 +3,9 @@ import sys
 import pytest
 import pandas as pd
 
-# Import make_histogram function from src folder
+# Import plot_chart and plot4 functions from make_figs module
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from src.make_figs import plot_chart
+from make_figs import plot_chart, plot4
 
 # Mock data for testing
 data = pd.DataFrame({
