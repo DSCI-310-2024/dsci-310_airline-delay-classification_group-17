@@ -5,7 +5,7 @@ import pandas as pd
 
 # Import plot_chart and plot4 functions from make_figs module
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from make_figs import plot_chart, plot4
+from src.make_figs import plot_chart, plot4
 
 # Mock data for testing
 data = pd.DataFrame({
