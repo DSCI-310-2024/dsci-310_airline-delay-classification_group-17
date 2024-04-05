@@ -5,8 +5,7 @@ from sklearn.metrics import make_scorer
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import  confusion_matrix, ConfusionMatrixDisplay, classification_report
-
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report
 
 import pickle
 
@@ -38,3 +37,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+"""
+This script loads preprocessed data, a trained KNN classifier model, and performs predictions on test data.
+It then calculates the accuracy score of the predictions and saves the predictions to a CSV file.
+"""
