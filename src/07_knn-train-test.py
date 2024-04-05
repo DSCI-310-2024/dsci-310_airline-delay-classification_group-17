@@ -10,33 +10,31 @@ from sklearn.metrics import  confusion_matrix, ConfusionMatrixDisplay, classific
 
 import pickle
 
+from load_and_save import load_data, save_model
+
 def main():
+    # Load data
+    X_train = load_data("data/processed/03_X-train.csv")
+    y_train = load_data("data/processed/03_y-train.csv").values.ravel()
+    X_test = load_data("data/processed/03_X-test.csv")
+    y_test = load_data("data/processed/03_y-test.csv").values.ravel()
 
-	X_train = pd.read_csv("data/processed/03_X-train.csv")
-	y_train = pd.read_csv("data/processed/03_y-train.csv")
-	X_test = pd.read_csv("data/processed/03_X-test.csv")
-	y_test = pd.read_csv("data/processed/03_y-test.csv")
-	
-	
-	best_model = pickle.load(open('results/02_best-knn-model.pickle', 'rb'))	
+    # Load best model
+    best_model = pickle.load(open('results/02_best-knn-model.pickle', 'rb'))
 
-	best_model.fit(X_train, y_train.values.ravel())
+    # Train the best model
+    best_model.fit(X_train, y_train)
 
-	prediction = best_model.predict(X_test)
-	
-	test_score = best_model.score(X_test, y_test)
-	
-	test_score
-	
-	prediction_df = pd.DataFrame(prediction)
-	prediction_df = prediction_df.rename(columns={prediction_df.columns[0]:'prediction'})
+    # Predict on test data
+    prediction = best_model.predict(X_test)
 
-	prediction_df.to_csv("results/03_knn-test-predict.csv")
+    # Calculate test score
+    test_score = accuracy_score(y_test, prediction)
+    print("Test Score:", test_score)
+
+    # Save predictions to a CSV file
+    prediction_df = pd.DataFrame(prediction, columns=['prediction'])
+    prediction_df.to_csv("results/03_knn-test-predict.csv", index=False)
 
 if __name__ == "__main__":
     main()
-
-	
-
-
-	
