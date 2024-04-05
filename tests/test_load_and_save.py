@@ -4,7 +4,8 @@ import sys
 import pickle
 import pytest
 
-from utils import load_data, save_model
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from src.load_and_save import load_data, save_model
 
 @pytest.fixture
 def sample_data():
