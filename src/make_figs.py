@@ -8,29 +8,29 @@ from sklearn.metrics import  confusion_matrix, ConfusionMatrixDisplay, classific
 
 def plot_chart(data, x_field, title, prediction_field, actual_field, save_path):
     prediction_chart = alt.Chart(data, width=300, height=200, title=title).mark_bar().encode(
-                            x=alt.X(x_field, title=x_field, axis=alt.Axis(labelAngle=0)),
-                            xOffset=prediction_field,
-                            y=alt.Y("count()", title="Number of Flights"),
-                            color=alt.Color(prediction_field, title="Model Prediction"),
-                            tooltip=alt.Tooltip(["count()", x_field])
-                        )
+        x=alt.X(x_field, title=x_field, axis=alt.Axis(labelAngle=0)),
+        xOffset=prediction_field,
+        y=alt.Y("count()", title="Number of Flights"),
+        color=alt.Color(prediction_field, title="Model Prediction"),
+        tooltip=alt.Tooltip(["count()", x_field])
+    )
 
     actual_chart = alt.Chart(data, width=300, height=200, title=title).mark_bar().encode(
-                        x=alt.X(x_field, title=x_field, axis=alt.Axis(labelAngle=0)),
-                        xOffset=actual_field,
-                        y=alt.Y("count()", title="Number of Flights"),
-                        color=alt.Color(actual_field, title="Actual"),
-                        tooltip=alt.Tooltip(["count()", x_field])
-                    )
+        x=alt.X(x_field, title=x_field, axis=alt.Axis(labelAngle=0)),
+        xOffset=actual_field,
+        y=alt.Y("count()", title="Number of Flights"),
+        color=alt.Color(actual_field, title="Actual"),
+        tooltip=alt.Tooltip(["count()", x_field])
+    )
 
     plt = (prediction_chart | actual_chart).resolve_scale(color='independent')
     plt.save(save_path)
 
-
 def plot4(data):
     alt.data_transformers.disable_max_rows()
 
-    melt_flight_predict = data.melt(id_vars=['MONTH', 'DAY_OF_WEEK', 'DEP_DEL15', 'CARRIER_NAME', 'prediction', 'index'])
+    # Remove 'index' from id_vars
+    melt_flight_predict = data.melt(id_vars=['MONTH', 'DAY_OF_WEEK', 'DEP_DEL15', 'CARRIER_NAME', 'prediction'])
 
     dropdown_options = ['CONCURRENT_FLIGHTS', 'FLT_ATTENDANTS_PER_PASS', 'GROUND_SERV_PER_PASS', 'PLANE_AGE', 'SNOW', 'AWND']
     dropdown_numeric_variable = alt.binding_select(options=dropdown_options, name='Y-axis feature')
@@ -44,5 +44,3 @@ def plot4(data):
                                     ).add_params(selection).transform_filter(selection)
 
     drop_down_chart.save("results/07_fig_numeric-feats-interactive-viz.html")
-
-
