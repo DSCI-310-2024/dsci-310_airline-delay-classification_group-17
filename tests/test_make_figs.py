@@ -5,7 +5,8 @@ import pandas as pd
 
 # Import make_histogram function from src folder
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from src.make-figs import plot_chart, plot4
+from src.make-figs import plot_chart
+from src.08-make-figs import plot4
 
 # Mock data for testing
 data = pd.DataFrame({
