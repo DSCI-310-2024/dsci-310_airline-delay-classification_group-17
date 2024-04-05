@@ -4,7 +4,7 @@ import numpy as np
 import sklearn
 
 from sklearn.metrics import  confusion_matrix, ConfusionMatrixDisplay, classification_report
-from make-figs import plot_chart
+from make-figs import plot_chart, plot4
 
 def main():
     predictions = pd.read_csv("results/03_knn-test-predict.csv")
@@ -32,23 +32,6 @@ def plot2(data):
 def plot3(data):
     plot_chart(data, "CARRIER_NAME", "Flight Carriers and Predicted Flight Delay", "prediction", "DEP_DEL15", "results/06_fig_carrier-vs-prediction-actual.png")
 
-def plot4(data):
-    alt.data_transformers.disable_max_rows()
-
-    melt_flight_predict = data.melt(id_vars=['MONTH', 'DAY_OF_WEEK', 'DEP_DEL15', 'CARRIER_NAME', 'prediction', 'index'])
-
-    dropdown_options = ['CONCURRENT_FLIGHTS', 'FLT_ATTENDANTS_PER_PASS', 'GROUND_SERV_PER_PASS', 'PLANE_AGE', 'SNOW', 'AWND']
-    dropdown_numeric_variable = alt.binding_select(options=dropdown_options, name='Y-axis feature')
-    selection = alt.selection_point(fields=['variable'], bind=dropdown_numeric_variable)
-
-    drop_down_chart = alt.Chart(melt_flight_predict, width=1000, height=400
-                                    ).mark_circle(opacity=0.4).encode(
-                                        y=alt.X('value:Q', title=""),
-                                        x=alt.Y('MONTH', title="Month", sort=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]),
-                                        color=alt.Color('prediction', title="Model Prediction")
-                                    ).add_params(selection).transform_filter(selection)
-
-    drop_down_chart.save("results/07_fig_numeric-feats-interactive-viz.html")
 
 if __name__ == "__main__":
     main
