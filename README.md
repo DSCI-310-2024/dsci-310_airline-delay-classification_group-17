@@ -19,28 +19,31 @@ To replicate our analysis using Docker:
     - Click the green `<> Code` button and copy the url.
     - Navigate to where you'd like the cloned repository to reside in your local machine via the terminal.
     - Run the command `git clone <url>` in the terminal.
-2. Navigate into the cloned (local) repository by running the command `cd dsci-310_airline-delay-classification_group-17`.
-3. Build the Docker container by running the following command: 
-     `docker build -t airline-project`
-4. Run the Docker container using the following command 
-    `docker run -p 8888:8888 airline-project`
-5. To remove the results of the analysis and remake them, run the commands `make clean-all` and `make all` in the terminal.
-6. View the analysis report `airline-delay-classification-report.html`.
-
-
+2. Open Docker Desktop.
+2. To remove the results of our analysis, run the following command in the terminal:
+    `docker-compose run --rm airline-analysis-env make clean-all`
+5. To remake the results of the analysis, run the commands following command in the terminal:
+    `docker-compose run --rm airline-analysis-env make all`
+6. View the analysis report `airline-delay-classification-report.html` in the reports directory.
 
 
 ## Dependencies
-Python version 3.11.5
+Docker Desktop, Quarto version 1.4.550, Python version 3.11.5, and the python packages listed below.
 
 ### Python packages:
-  - `altair==5.2.0`
-  - `jupyterlab==4.0.10`
-  - `matplotlib==3.8.2`
-  - `nb_conda_kernels==2.3.1`
-  - `numpy==1.26.4`
-  - `pandas==2.2.0`
-  - `scikit-learn==1.4.0`
+  - altair==5.2.0
+  - altair_saver==0.5.0
+  - conda==23.11.0
+  - jupyterlab==4.0.10
+  - matplotlib==3.8.2
+  - nb_conda_kernels==2.3.1
+  - numpy==1.26.4
+  - pandas==2.2.0
+  - python==3.11.5
+  - pytest==8.1.1
+  - scikit-learn==1.4.0
+  - tabulate==0.9.0
+  - vl-convert-python==1.3.0
 
 ## Licences
 
