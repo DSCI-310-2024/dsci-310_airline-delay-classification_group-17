@@ -44,4 +44,4 @@ Python version 3.11.5
 
 ## Licences
 
-This project is licensed under the terms of the MIT License. If re-using/re-mixing please provide attribution and link to this webpage.
+The code of this project is licensed under the terms of the MIT License and the aalysis report is licensed under the terms of Creative Commons 4.0 License. If re-using/re-mixing please provide attribution and link to this webpage. For more details, navigate to our [LICENSE](https://github.com/DSCI-310-2024/dsci-310_airline-delay-classification_group-17/blob/main/LICENSE).
