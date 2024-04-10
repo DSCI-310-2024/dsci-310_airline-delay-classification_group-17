@@ -9,7 +9,7 @@ USER root
 WORKDIR /app
 
 # Install dependencies
-RUN conda install -y \
+RUN conda install -y --channel conda-forge \
     altair=5.2.0 \
     altair_saver=0.5.0 \
     conda=23.11.0 \
