@@ -20,11 +20,13 @@ RUN conda install -y \
     pandas=2.2.0 \
     python=3.11.5 \
     pytest=8.1.1 \
+    quarto=1.4.550 \
     scikit-learn=1.4.0 \
     tabulate=0.9.0 \
-    vl-convert-python=1.3.0 \
-    quarto=1.4.550
+    vl-convert-python=1.3.0
 
-RUN pip install wheel
+RUN pip install \
+    wheel \
+    delay_finder
 
 RUN apt-get update
