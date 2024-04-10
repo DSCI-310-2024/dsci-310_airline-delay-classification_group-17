@@ -23,5 +23,8 @@ RUN conda install -y \
     scikit-learn=1.4.0 \
     tabulate=0.9.0 \
     vl-convert-python=1.3.0 \
-    quarto=1.4.550 \
-    tabulate=0.9.0
+    quarto=1.4.550
+
+RUN pip install wheel
+
+RUN apt-get update
