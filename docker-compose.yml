@@ -1,0 +1,8 @@
+services:
+  airline-analysis-env:
+  image: balodi/dsci-310_airline-delay-classification_group-17
+  ports:
+    - "8888:8888"
+  volumes:
+    - .:/home/jovyan
+  platform: linux/amd64

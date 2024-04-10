@@ -1,20 +1,27 @@
 # Dockerfile
 
-# Use an existing Python base image with required version
-FROM python:3.11.5
+# Use Python image as the base image
+FROM quay.io/jupyter/scipy-notebook:2024-02-24
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+USER root
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the requirements file to the container at /app
-COPY requirements.txt /app/
-
 # Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the rest of the application code to the container at /app
-COPY . /app/
+RUN conda install -y \
+    altair=5.2.0 \
+    altair_saver=0.5.0 \
+    conda=23.11.0 \
+    jupyterlab=4.0.10 \
+    matplotlib=3.8.2 \
+    nb_conda_kernels=2.3.1 \
+    numpy=1.26.4 \
+    pandas=2.2.0 \
+    python=3.11.5 \
+    pytest=8.1.1 \
+    scikit-learn=1.4.0 \
+    tabulate=0.9.0 \
+    vl-convert-python=1.3.0 \
+    quarto=1.4.550 \
+    tabulate=0.9.0
