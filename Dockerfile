@@ -6,12 +6,12 @@ FROM quay.io/jupyter/scipy-notebook:2024-02-24
 USER root
 
 # Set the working directory in the container
-#WORKDIR /app
+WORKDIR /app
 
 # Install dependencies
-RUN apt-get update \
-    apt-get upgrade \
-    apt-get install -y \
+RUN apt-get update
+
+RUN apt-get install -y \
     make \
     gdebi
 
