@@ -2,11 +2,8 @@ import pandas as pd
 from sklearn.compose import make_column_transformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.pipeline import make_pipeline
-from replace_value import replace_value
-
-# read data from csv file
-def read(file_name):
-    return pd.read_csv(file_name)
+from delay_finder.replace_value import replace_value
+from delay_finder.read import read
 
 # main
 def preprocess(train_file, test_file):

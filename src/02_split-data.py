@@ -1,9 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-
-# function to read data from a csv file
-def read(file_name):
-    return pd.read_csv(file_name)
+from delay_finder.read import read
 
 # main function to split data into train and test sets
 def data_split():
