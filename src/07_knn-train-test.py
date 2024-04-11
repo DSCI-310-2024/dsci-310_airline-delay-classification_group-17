@@ -6,17 +6,16 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report
-
 import pickle
-
-from load_and_save import load_data, save_model
+from delay_finder.read import read
+from delay_finder.load_and_save import save_model
 
 def main():
     # Load data
-    X_train = load_data("data/processed/03_X-train.csv")
-    y_train = load_data("data/processed/03_y-train.csv").values.ravel()
-    X_test = load_data("data/processed/03_X-test.csv")
-    y_test = load_data("data/processed/03_y-test.csv").values.ravel()
+    X_train = read("data/processed/03_X-train.csv")
+    y_train = read("data/processed/03_y-train.csv").values.ravel()
+    X_test = read("data/processed/03_X-test.csv")
+    y_test = read("data/processed/03_y-test.csv").values.ravel()
 
     # Load best model
     best_model = pickle.load(open('results/02_best-knn-model.pickle', 'rb'))

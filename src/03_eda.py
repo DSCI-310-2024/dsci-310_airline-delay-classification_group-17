@@ -1,6 +1,6 @@
 import pandas as pd
 import altair as alt
-from make_histogram import make_histogram
+from delay_finder.make_histogram import make_histogram
 
 
 # read data from csv file

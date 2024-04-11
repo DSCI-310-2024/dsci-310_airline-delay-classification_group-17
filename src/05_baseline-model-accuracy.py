@@ -5,10 +5,7 @@ from sklearn.dummy import DummyClassifier
 from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, f1_score
 from sklearn.model_selection import cross_validate
 import pickle
-
-
-def read(file_name):
-	return pd.read_csv(file_name)
+from delay_finder.read import read
 
 def main():
 	X_train = read("data/processed/03_X-train.csv")

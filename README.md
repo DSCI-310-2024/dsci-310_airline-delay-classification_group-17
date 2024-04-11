@@ -34,6 +34,7 @@ Docker Desktop, Quarto version 1.4.550, Python version 3.11.5, and the python pa
   - altair==5.2.0
   - altair_saver==0.5.0
   - conda==23.11.0
+  - delay_finder==0.1.0
   - jupyterlab==4.0.10
   - matplotlib==3.8.2
   - nb_conda_kernels==2.3.1

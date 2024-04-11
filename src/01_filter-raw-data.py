@@ -1,14 +1,8 @@
 import pandas as pd
 import os
 import sys
-
-# function to read data from a csv file
-def read(file_name):
-    return pd.read_csv(file_name)
-
-# function to filter columns
-def filter_columns(data, columns_of_interest):
-    return data[columns_of_interest]
+from delay_finder.read import read
+from delay_finder.filter_columns import filter_columns
 
 # main function
 def read_and_filter():
