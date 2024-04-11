@@ -6,9 +6,15 @@ FROM quay.io/jupyter/scipy-notebook:2024-02-24
 USER root
 
 # Set the working directory in the container
-WORKDIR /app
+#WORKDIR /app
 
 # Install dependencies
+RUN apt-get update \
+    apt-get upgrade \
+    apt-get install -y \
+    make \
+    gdebi
+
 RUN conda install -y --channel conda-forge \
     altair=5.2.0 \
     altair_saver=0.5.0 \
@@ -28,5 +34,3 @@ RUN conda install -y --channel conda-forge \
 RUN pip install \
     wheel \
     delay_finder
-
-RUN apt-get update
