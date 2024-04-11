@@ -1,6 +1,6 @@
 services:
   airline-analysis-env:
-    image: balodi/dsci-310_airline-delay-classification_group-17
+    image: stephanieta/dsci310-airline-delay-project
     ports:
       - "8888:8888"
     volumes:
