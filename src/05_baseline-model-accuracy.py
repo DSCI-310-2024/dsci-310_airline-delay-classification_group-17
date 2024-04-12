@@ -8,29 +8,41 @@ import pickle
 from delay_finder.read import read
 
 def main():
-	X_train = read("data/processed/03_X-train.csv")
-	y_train = read("data/processed/03_y-train.csv")
+    """
+    Trains a baseline model using a dummy classifier and saves the model to a pickle file.
 
-	scoring = {'accuracy': 'accuracy',
-           'precision': make_scorer(precision_score, pos_label=1),
-           'recall': make_scorer(recall_score, pos_label=1),
-           'f1': make_scorer(f1_score, pos_label=1) }
+    Reads preprocessed training data, trains the model, and saves it to a file.
 
-	dummy_classifier = DummyClassifier(strategy = "stratified", random_state = 12)
+    Returns:
+    None
+    """
+    # Read preprocessed data
+    X_train = read("data/processed/03_X-train.csv")
+    y_train = read("data/processed/03_y-train.csv")
 
-	dummy_scores = pd.DataFrame(
-    		cross_validate(
-        		dummy_classifier, X_train, y_train, cv = 5, return_train_score = True, scoring = scoring
-    		)
-	)
+    # Define scoring metrics
+    scoring = {'accuracy': 'accuracy',
+               'precision': make_scorer(precision_score, pos_label=1),
+               'recall': make_scorer(recall_score, pos_label=1),
+               'f1': make_scorer(f1_score, pos_label=1)}
 
-	dummy_mean = dummy_scores.mean()
-	
-	baseline_model = dummy_classifier
-	f = open('results/01_baseline-model.pickle', 'wb')
-	pickle.dump(baseline_model, f)
-	
+    # Initialize dummy classifier
+    dummy_classifier = DummyClassifier(strategy="stratified", random_state=12)
+
+    # Perform cross-validation and compute scores
+    dummy_scores = pd.DataFrame(
+        cross_validate(
+            dummy_classifier, X_train, y_train, cv=5, return_train_score=True, scoring=scoring
+        )
+    )
+
+    # Compute mean scores
+    dummy_mean = dummy_scores.mean()
+
+    # Save baseline model to a pickle file
+    baseline_model = dummy_classifier
+    with open('results/01_baseline-model.pickle', 'wb') as f:
+        pickle.dump(baseline_model, f)
+
 if __name__ == "__main__":
-	main()
-
-
+    main()
