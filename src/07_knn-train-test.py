@@ -11,7 +11,14 @@ from delay_finder.read import read
 from delay_finder.load_and_save import save_model
 
 def main():
-    # Load data
+    """
+    Load preprocessed data and a trained KNN classifier model, make predictions on test data,
+    calculate the accuracy score of the predictions, and save the predictions to a CSV file.
+
+    Returns:
+    None
+    """
+    # Load preprocessed data
     X_train = read("data/processed/03_X-train.csv")
     y_train = read("data/processed/03_y-train.csv").values.ravel()
     X_test = read("data/processed/03_X-test.csv")
