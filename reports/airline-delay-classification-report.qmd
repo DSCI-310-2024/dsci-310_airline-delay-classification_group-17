@@ -16,7 +16,7 @@ editor: source
 
 ## Summary
 
-In this project, we delve into a 2019 airline delays dataset to dissect the intricate factors contributing to flight disruptions. Our analysis aims to address pivotal questions, such as what are the primary drivers behind flight delays and cancellations? Are certain airlines or airports more vulnerable to these disruptions? How do external factors like adverse weather conditions or air traffic congestion exacerbate flight schedules? While previous studies have touched upon aspects of flight disruptions, we endeavor to provide a deeper understanding through the lens of  analytical techniques, including descriptive statistics, data visualization, and machine learning algorithms (specifically KNN classification).
+In this project, we delve into a 2019 airline delays data set to dissect the intricate factors contributing to flight disruptions. Our analysis aims to address pivotal questions, such as what are the primary drivers behind flight delays and cancellations? Are certain airlines or airports more vulnerable to these disruptions? How do external factors like adverse weather conditions or air traffic congestion exacerbate flight schedules? While previous studies have touched upon aspects of flight disruptions, we endeavor to provide a deeper understanding through the lens of  analytical techniques, including descriptive statistics, data visualization, and machine learning algorithms (specifically KNN classification).
 
 Through our exploration, we have unearthed compelling insights. We have found that airport congestion, inclement weather, and airline operational issues are key contributors to flight disruptions. Furthermore, our analysis has revealed disparities in performance among airlines and airports, shedding light on areas ripe for operational enhancements and service improvements. By leveraging these findings, stakeholders within the aviation industry can make informed decisions aimed at minimizing disruptions and enhancing overall operational efficiency.
 
@@ -24,7 +24,7 @@ The significance of our research extends beyond the realm of academia. By unrave
 
 ## Introduction
 
-The airline industry plays a vital role in global transportation, yet it faces challenges such as flight delays which can inconvenience passengers and disrupt travel plans. In this project, we aim to conduct a comprehensive analysis of airline delays using the 2019 dataset sourced from [Kaggle](https://www.kaggle.com/datasets/threnjen/2019-airline-delays-and-cancellations) [@Wadkins_2022]. This dataset provides detailed information about flight delays, reasons for delays, and other relevant factors across various airlines operating in the United States of America in 2019. Our analysis will focus on identifying patterns, trends, and factors contributing to delays and cancellations, with the ultimate goal of gaining and providing insights to help airlines optimize their operations, improve punctuality, and enhance customer satisfaction. Through this project, we aim to contribute valuable insights to the aviation industry and provide actionable recommendations for mitigating delays and cancellations, ultimately improving the travel experience for passengers.
+The airline industry plays a vital role in global transportation, yet it faces challenges such as flight delays which can inconvenience passengers and disrupt travel plans. In this project, we aim to conduct a comprehensive analysis of airline delays using the 2019 data set sourced from [Kaggle](https://www.kaggle.com/datasets/threnjen/2019-airline-delays-and-cancellations) [@Wadkins_2022]. This dataset provides detailed information about flight delays, reasons for delays, and other relevant factors across various airlines operating in the United States of America in 2019. Our analysis will focus on identifying patterns, trends, and factors contributing to delays and cancellations, with the ultimate goal of gaining and providing insights to help airlines optimize their operations, improve punctuality, and enhance customer satisfaction. Through this project, we aim to contribute valuable insights to the aviation industry and provide actionable recommendations for mitigating delays and cancellations, ultimately improving the travel experience for passengers.
 
 ## Methods and Results
 
@@ -74,13 +74,13 @@ We can see that there are no null values in any of the columns. To gain more ins
 
 ### Preprocessing the Data
 
-Since the KNN algorithm uses Euclidian distance to determine how similar data points are to each cluster center, we centered and scaled each numeric feature in our preprocessing so they have the same effect on deciding cluster assignment. We considered the `month` and `day of the week` as numeric features, as they are represented in the dataset to preserve the ordinal element -- however we will concede that this would make the model consider Saturday (`7`) and Sunday (`1`) as far apart. This won't be a problem for the `months` since the data only has observations from 2019.  
+Since the KNN algorithm uses Euclidean distance to determine how similar data points are to each cluster center, we centered and scaled each numeric feature in our pre-processing so they have the same effect on deciding cluster assignment. We considered the `month` and `day of the week` as numeric features, as they are represented in the data set to preserve the ordinal element -- however we will concede that this would make the model consider Saturday (`7`) and Sunday (`1`) as far apart. This won't be a problem for the `months` since the data only has observations from 2019.  
 
 Saturdays and Sundays should be considered closer together since they are on weekends, so we changed Sundays' value to `8`. The model considers Sundays and Mondays to be further apart as a result, but we feel that this is a better trade-off.
 
-To allow our categorical features to be used as predictors, we preprocessed them using one-hot encoding.
+To allow our categorical features to be used as predictors, we pre-processed them using one-hot encoding.
 
-No imputation is needed since there are no missing values in the dataset.
+No imputation is needed since there are no missing values in the data set.
 
 ### Baseline Model
 ```{python}
@@ -222,9 +222,11 @@ In @fig-interactive, we can explore the flight month  vs. the different numeric 
 
 Meanwhile, it appears that very large amounts of **snowfall on departure day (inches)** tended to be associated with predicted flight delay while smaller amounts were associated with predicted flight non-delay.
 
-Overall, it appears that our model tends to predict that a flight will not be delayed.
+Overall, it appears that our model tends to predict that a flight will not be delayed. We are estimating that this is due to the fact that for the most part, flights tend not to be delayed. Hence, our model would not predict many delays.
 
 ## Discussion
+
+As previously mentioned in our results, the aspects that seem to have the most effect on whether or not a flight is delayed is snowfall on departure day. This should not be surprising as this type of weather comes with a myriad of different issues such as low visibility, ice on the roads & runways, ice and snow on planes, etc.
 
 Even though for the most part, the model which we created predicts that flights will not be delayed, it is crucial that it has still been predicting instances where it they could be delayed. Since this is the case, it means that the model can be implemented in multiple different ways. Since this is a sort of "special case" prediction, it makes the model all the more valuable as it can be used to save people stress, time, or even money. Due to its versatility, we came up with a couple of different options of how it could be used, but still it could be used even more than these.
 
